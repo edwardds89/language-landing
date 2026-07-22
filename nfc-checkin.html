@@ -114,7 +114,7 @@
     <span class="sparkle s3">✨</span>
   </div>
 
-  <h1>Thanks for practising <span class="hl" id="lang">Italian</span><br>at <span class="hl" id="venue">Canada Water Cafe</span>!</h1>
+  <h1>Thanks for practising<br>at <span class="hl" id="venue">Canada Water Cafe</span>!</h1>
   <p class="sub">Your real-world practice just paid off.</p>
 
   <div class="counter-box">
@@ -135,10 +135,8 @@
 (function(){
   // ── personalizzazione via URL: nfc-checkin.html?lang=French&venue=Bar%20Vittoria&gems=50
   var q = new URLSearchParams(location.search);
-  var lang  = q.get('lang')  || document.getElementById('lang').textContent;
   var venue = q.get('venue') || document.getElementById('venue').textContent;
   var gems  = Math.max(1, parseInt(q.get('gems') || '50', 10) || 50);
-  document.getElementById('lang').textContent  = lang;
   document.getElementById('venue').textContent = venue;
 
   // ── contatore animato 0 → gems
