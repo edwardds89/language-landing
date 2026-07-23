@@ -114,7 +114,7 @@
     <span class="sparkle s3">✨</span>
   </div>
 
-  <h1>Thanks for practising<br>at <span class="hl" id="venue">Canada Water Cafe</span>!</h1>
+  <h1 id="headline">Thanks for practising<br><span id="venueLine">in the real world</span>!</h1>
   <p class="sub">Your real-world practice just paid off.</p>
 
   <div class="counter-box">
@@ -135,9 +135,15 @@
 (function(){
   // ── personalizzazione via URL: nfc-checkin.html?lang=French&venue=Bar%20Vittoria&gems=50
   var q = new URLSearchParams(location.search);
-  var venue = q.get('venue') || document.getElementById('venue').textContent;
+  var venue = q.get('venue');
   var gems  = Math.max(1, parseInt(q.get('gems') || '50', 10) || 50);
-  document.getElementById('venue').textContent = venue;
+  // Se un locale è specificato nell'URL, mostra "at [Nome]"; altrimenti resta generico
+  var venueLine = document.getElementById('venueLine');
+  if (venue && venue.trim()) {
+    venueLine.innerHTML = 'at <span class="hl">' + venue.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</span>';
+  } else {
+    venueLine.innerHTML = 'in the real world';
+  }
 
   // ── contatore animato 0 → gems
   var el = document.getElementById('counter'), wrap = document.getElementById('counterWrap');
@@ -188,7 +194,7 @@
   setTimeout(function(){ document.querySelectorAll('.conf').forEach(function(e){ e.remove(); }); }, 6000);
 
   // ── il bottone conserva i parametri (utile per futuro deep link)
-  document.getElementById('cta').href = 'https://languagepin.co.uk/?utm_source=nfc&utm_medium=venue&utm_campaign=' + encodeURIComponent(venue);
+  document.getElementById('cta').href = 'https://languagepin.co.uk/?utm_source=nfc&utm_medium=venue&utm_campaign=' + encodeURIComponent(venue || 'generic');
 })();
 </script>
 </body>
