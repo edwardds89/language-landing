@@ -69,6 +69,36 @@
   .b-staff{background:rgba(240,138,30,.16);color:var(--accent2)}
   .b-unverified{background:rgba(157,182,190,.14);color:var(--muted)}
   .hide{display:none}
+  .ac{position:relative}
+  .aclist{position:absolute;left:0;right:0;top:calc(100% + 4px);z-index:50;
+    background:var(--bg2);border:1px solid var(--line);border-radius:10px;
+    overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.4);display:none}
+  .aclist.on{display:block}
+  .aclist div{padding:11px 13px;font-size:14.5px;cursor:pointer;
+    border-bottom:1px solid var(--line)}
+  .aclist div:last-child{border-bottom:0}
+  .aclist div:hover,.aclist div.sel{background:var(--card)}
+  .aclist small{display:block;color:var(--muted);font-size:12.5px;margin-top:2px}
+  .coord{font-size:12.5px;margin-top:7px;display:flex;align-items:center;gap:8px}
+  .coord .pill{background:var(--bg2);border:1px solid var(--line);border-radius:99px;
+    padding:4px 11px;font-family:ui-monospace,monospace;font-size:12px}
+  .coord .off{color:var(--err)}
+  .coord .on{color:var(--ok)}
+  .coord a{color:var(--muted);text-decoration:underline;cursor:pointer}
+  .hrs{border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .day{display:flex;align-items:center;gap:8px;padding:9px 11px;
+    border-bottom:1px solid var(--line)}
+  .day:last-child{border-bottom:0}
+  .day label.dl{margin:0;width:42px;flex:0 0 42px;font-size:12px;letter-spacing:.05em;
+    text-transform:none;color:var(--ink)}
+  .day input[type=checkbox]{width:18px;height:18px;flex:0 0 18px;margin:0;
+    accent-color:var(--accent)}
+  .day select{padding:7px 8px;font-size:14px;flex:1;min-width:0}
+  .day .sep{color:var(--muted);font-size:13px}
+  .day.off select{opacity:.35;pointer-events:none}
+  .copyall{margin-top:9px;font-size:13px;color:var(--accent2);
+    background:transparent;border:0;padding:0;cursor:pointer;width:auto;
+    text-decoration:underline;font-family:inherit}
 </style>
 </head>
 <body>
@@ -144,26 +174,19 @@
       <label for="f_area">Area / neighbourhood</label>
       <input id="f_area" placeholder="Soho">
 
-      <label for="f_address">Address</label>
-      <input id="f_address" placeholder="22 Frith St, London W1D 4RF">
-
-      <div class="row">
-        <div>
-          <label for="f_lat">Latitude *</label>
-          <input id="f_lat" inputmode="decimal" placeholder="51.5136">
-        </div>
-        <div>
-          <label for="f_lng">Longitude *</label>
-          <input id="f_lng" inputmode="decimal" placeholder="-0.1319">
-        </div>
+      <label for="f_address">Address *</label>
+      <div class="ac">
+        <input id="f_address" autocomplete="off" placeholder="Start typing: 22 Frith St…">
+        <div class="aclist" id="ac"></div>
       </div>
-      <div class="hint">
-        On Google Maps: long-press the spot, then copy the two numbers it shows.
-        London is roughly lat 51.3–51.7, lng −0.5 to 0.3.
+      <div class="coord" id="coord">
+        <span class="off">No location picked yet</span>
       </div>
+      <div class="hint">Pick a suggestion so the pin lands in the right spot.</div>
 
-      <label for="f_best">Best time to go</label>
-      <input id="f_best" placeholder="Weekday mornings, before 11am">
+      <label>Best time to go</label>
+      <div class="hrs" id="hrs"></div>
+      <button type="button" class="copyall" id="copyall">Copy the first active day to all others</button>
 
       <label for="f_why">Why this place</label>
       <textarea id="f_why" placeholder="Owner is from Bari. Counter staff switch to Italian if you open in Italian."></textarea>
@@ -220,6 +243,124 @@ function msg(el, text, kind){
 }
 function clearMsg(el){ el.className = 'msg'; }
 
+// ---------- opening hours ----------
+const DAYS = [['mon','Mon'],['tue','Tue'],['wed','Wed'],['thu','Thu'],
+              ['fri','Fri'],['sat','Sat'],['sun','Sun']];
+const TIMES = (() => { const t = [];
+  for (let h = 6; h <= 23; h++) for (const m of ['00','30'])
+    t.push(String(h).padStart(2,'0') + ':' + m);
+  t.push('24:00'); return t; })();
+
+const hrsBox = $('hrs');
+DAYS.forEach(([k, lbl]) => {
+  const row = document.createElement('div');
+  row.className = 'day off'; row.dataset.k = k;
+  row.innerHTML = `<input type="checkbox" id="ck_${k}">
+    <label class="dl" for="ck_${k}">${lbl}</label>
+    <select id="from_${k}">${TIMES.map(t=>`<option${t==='10:00'?' selected':''}>${t}</option>`).join('')}</select>
+    <span class="sep">to</span>
+    <select id="to_${k}">${TIMES.map(t=>`<option${t==='12:00'?' selected':''}>${t}</option>`).join('')}</select>`;
+  hrsBox.appendChild(row);
+  row.querySelector('input').addEventListener('change', e => {
+    row.classList.toggle('off', !e.target.checked);
+  });
+});
+
+$('copyall').addEventListener('click', () => {
+  const first = DAYS.map(([k]) => k).find(k => $('ck_' + k).checked);
+  if (!first) return;
+  const f = $('from_' + first).value, t = $('to_' + first).value;
+  DAYS.forEach(([k]) => {
+    $('ck_' + k).checked = true;
+    $('from_' + k).value = f; $('to_' + k).value = t;
+    $('ck_' + k).closest('.day').classList.remove('off');
+  });
+});
+
+function readHours(){
+  const out = {};
+  DAYS.forEach(([k]) => {
+    if ($('ck_' + k).checked) out[k] = [$('from_' + k).value, $('to_' + k).value];
+  });
+  return Object.keys(out).length ? out : null;
+}
+function hoursText(h){
+  if (!h) return null;
+  const groups = [];
+  DAYS.forEach(([k, lbl]) => {
+    if (!h[k]) return;
+    const span = h[k][0] + '–' + h[k][1];
+    const last = groups[groups.length - 1];
+    if (last && last.span === span && last.endIdx === DAYS.findIndex(d=>d[0]===k) - 1){
+      last.to = lbl; last.endIdx++;
+    } else {
+      groups.push({ from: lbl, to: null, span, endIdx: DAYS.findIndex(d=>d[0]===k) });
+    }
+  });
+  return groups.map(g => (g.to ? g.from + '–' + g.to : g.from) + ' ' + g.span).join(', ');
+}
+
+// ---------- address autocomplete (Photon / OpenStreetMap, no key) ----------
+let picked = null, acTimer = null;
+const acBox = $('ac');
+
+$('f_address').addEventListener('input', e => {
+  const q = e.target.value.trim();
+  picked = null; paintCoord();
+  clearTimeout(acTimer);
+  if (q.length < 3){ acBox.classList.remove('on'); return; }
+  acTimer = setTimeout(() => suggest(q), 260);
+});
+
+async function suggest(q){
+  try {
+    const url = 'https://photon.komoot.io/api/?limit=6&lang=en&lat=51.5074&lon=-0.1278&q='
+      + encodeURIComponent(q + ' London');
+    const r = await fetch(url);
+    const j = await r.json();
+    const items = (j.features || []).filter(f => {
+      const [lon, lat] = f.geometry.coordinates;
+      return lat > 51.2 && lat < 51.8 && lon > -0.6 && lon < 0.4;
+    });
+    if (!items.length){ acBox.classList.remove('on'); return; }
+    acBox.innerHTML = items.map((f, i) => {
+      const p = f.properties;
+      const line1 = [p.name, p.housenumber ? p.street + ' ' + p.housenumber : p.street]
+        .filter(Boolean).join(' · ');
+      const line2 = [p.district, p.city, p.postcode].filter(Boolean).join(', ');
+      return `<div data-i="${i}">${esc(line1 || p.street || p.city)}<small>${esc(line2)}</small></div>`;
+    }).join('');
+    acBox.classList.add('on');
+    acBox.querySelectorAll('div[data-i]').forEach(el => {
+      el.addEventListener('click', () => choose(items[+el.dataset.i]));
+    });
+  } catch { acBox.classList.remove('on'); }
+}
+
+function choose(f){
+  const p = f.properties, [lon, lat] = f.geometry.coordinates;
+  picked = { lat, lng: lon };
+  $('f_address').value = [p.name, p.street && p.housenumber ? p.street + ' ' + p.housenumber
+    : p.street, p.postcode].filter(Boolean).join(', ');
+  if (!$('f_area').value) $('f_area').value = p.district || p.suburb || p.city || '';
+  acBox.classList.remove('on');
+  paintCoord();
+}
+
+function paintCoord(){
+  $('coord').innerHTML = picked
+    ? `<span class="on">Location set</span>
+       <span class="pill">${picked.lat.toFixed(5)}, ${picked.lng.toFixed(5)}</span>
+       <a id="clr">clear</a>`
+    : `<span class="off">No location picked yet</span>`;
+  const c = $('clr');
+  if (c) c.addEventListener('click', () => { picked = null; paintCoord(); });
+}
+paintCoord();
+document.addEventListener('click', e => {
+  if (!e.target.closest('.ac')) acBox.classList.remove('on');
+});
+
 // borough dropdown
 const bsel = $('f_borough');
 BOROUGHS.forEach(b => {
@@ -274,23 +415,19 @@ $('save').addEventListener('click', async () => {
   clearMsg($('saveMsg'));
 
   const name = $('f_name').value.trim();
-  const lat  = parseFloat($('f_lat').value);
-  const lng  = parseFloat($('f_lng').value);
-
   if (!name) return msg($('saveMsg'), 'Name is required.', 'err');
-  if (Number.isNaN(lat) || Number.isNaN(lng))
-    return msg($('saveMsg'), 'Latitude and longitude are required.', 'err');
-  if (lat < 51.2 || lat > 51.8 || lng < -0.6 || lng > 0.4)
-    return msg($('saveMsg'), 'Those coordinates are not in London. Check you did not swap lat and lng.', 'err');
+  if (!picked) return msg($('saveMsg'), 'Pick an address from the suggestions so we know where the pin goes.', 'err');
 
+  const hours = readHours();
   const row = {
     name,
     venue_type:   $('f_type').value    || null,
     area:         $('f_area').value.trim()    || null,
     borough:      $('f_borough').value || null,
     address:      $('f_address').value.trim() || null,
-    lat, lng,
-    best_time:    $('f_best').value.trim()    || null,
+    lat: picked.lat, lng: picked.lng,
+    best_hours:   hours,
+    best_time:    hoursText(hours),
     why:          $('f_why').value.trim()     || null,
     verification: $('f_ver').value,
     nfc_tag_uid:  $('f_nfc').value.trim()     || null,
@@ -304,8 +441,10 @@ $('save').addEventListener('click', async () => {
   if (error) return msg($('saveMsg'), 'Not saved: ' + error.message, 'err');
 
   msg($('saveMsg'), name + ' added to the map.', 'ok');
-  ['f_name','f_area','f_address','f_lat','f_lng','f_best','f_why','f_nfc']
-    .forEach(id => $(id).value = '');
+  ['f_name','f_area','f_address','f_why','f_nfc'].forEach(id => $(id).value = '');
+  picked = null; paintCoord();
+  DAYS.forEach(([k]) => { $('ck_'+k).checked = false;
+    $('ck_'+k).closest('.day').classList.add('off'); });
   loadVenues();
 });
 
