@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>LanguagePin — Speak Italian in real places in London</title>
+<meta name="description" content="A map of places in London where you can practise Italian, and exactly what to say when you walk in.">
+<link rel="icon" href="logo_tab.png">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+:root{
+  --bg:#053F52; --bg2:#085F7A; --card:#0A4E64; --line:#12708C;
+  --ink:#F5EFE0; --muted:#9FBECB;
+  --accent:#F38808; --accent2:#FFB060;
+  --ok:#4FC48A; --err:#FF7B68;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink);
+  font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  -webkit-font-smoothing:antialiased}
+.wrap{max-width:680px;margin:0 auto;padding:0 18px}
+
+/* ---------- hero ---------- */
+header{padding:26px 0 18px;display:flex;align-items:center;gap:10px}
+header .mark{height:32px;width:auto;display:block;flex:0 0 auto}
+header b{font-size:18px;letter-spacing:-.01em}
+h1{font-size:31px;line-height:1.15;margin:6px 0 12px;letter-spacing:-.02em;font-weight:800}
+h1 em{font-style:normal;color:var(--accent2)}
+.sub{font-size:17px;color:var(--muted);margin:0 0 20px;max-width:34em}
+.sub b{color:var(--ink);font-weight:600}
+
+/* ---------- map ---------- */
+#map{height:62vh;min-height:340px;border-radius:16px;border:1px solid var(--line);
+  background:var(--bg2);z-index:1}
+.maphint{font-size:13px;color:var(--muted);margin:10px 0 26px;display:flex;
+  align-items:center;gap:7px}
+.dot{width:7px;height:7px;border-radius:99px;background:var(--accent);flex:0 0 auto}
+.leaflet-container{background:var(--bg2);font-family:inherit}
+.pinmark{width:28px;height:36px;display:block;filter:drop-shadow(0 2px 3px rgba(0,0,0,.35))}
+
+/* ---------- sheet ---------- */
+.scrim{position:fixed;inset:0;background:rgba(3,26,34,.72);z-index:900;
+  opacity:0;pointer-events:none;transition:opacity .18s}
+.scrim.on{opacity:1;pointer-events:auto}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:901;
+  background:var(--card);border-top:1px solid var(--line);
+  border-radius:20px 20px 0 0;max-height:88vh;overflow-y:auto;
+  transform:translateY(102%);transition:transform .26s cubic-bezier(.2,.8,.2,1);
+  padding:0 18px calc(28px + env(safe-area-inset-bottom))}
+.sheet.on{transform:translateY(0)}
+.grab{width:38px;height:4px;border-radius:99px;background:var(--line);
+  margin:10px auto 16px}
+.sheet .inner{max-width:640px;margin:0 auto}
+.close{position:absolute;top:14px;right:16px;background:transparent;border:0;
+  color:var(--muted);font-size:26px;line-height:1;cursor:pointer;padding:4px 8px}
+
+h2{font-size:22px;margin:0 0 4px;letter-spacing:-.01em;font-weight:750}
+.where{font-size:14px;color:var(--muted);margin:0 0 12px}
+.badge{display:inline-block;font-size:11px;padding:4px 10px;border-radius:99px;
+  letter-spacing:.02em;margin-bottom:14px}
+.b-confirmed{background:rgba(79,196,138,.16);color:var(--ok)}
+.b-italian_staff{background:rgba(243,136,8,.16);color:var(--accent2)}
+.b-unverified{background:rgba(159,190,203,.14);color:var(--muted)}
+.meta{background:var(--bg);border:1px solid var(--line);border-radius:12px;
+  padding:13px 15px;margin-bottom:18px;font-size:14.5px}
+.meta div+div{margin-top:9px}
+.meta span{color:var(--muted);display:block;font-size:11.5px;
+  text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px}
+
+/* ---------- gate ---------- */
+.gate{background:var(--bg);border:1px solid var(--accent);border-radius:14px;
+  padding:18px;margin-bottom:20px}
+.gate h3{margin:0 0 6px;font-size:17px;font-weight:700}
+.gate p{margin:0 0 15px;font-size:14.5px;color:var(--muted)}
+label{display:block;font-size:11.5px;text-transform:uppercase;letter-spacing:.08em;
+  color:var(--muted);margin:0 0 6px}
+input,select{width:100%;padding:13px;font-size:16px;font-family:inherit;
+  background:var(--card);border:1px solid var(--line);border-radius:10px;color:var(--ink)}
+input:focus,select:focus{outline:2px solid var(--accent);border-color:transparent}
+.f+.f{margin-top:13px}
+.consent{display:flex;gap:10px;align-items:flex-start;margin-top:15px;
+  font-size:13px;color:var(--muted);line-height:1.45}
+.consent input{width:19px;height:19px;flex:0 0 19px;margin:1px 0 0;accent-color:var(--accent)}
+button.cta{width:100%;margin-top:16px;padding:15px;font-size:16.5px;font-weight:800;
+  font-family:inherit;background:var(--accent);color:#052733;border:0;
+  border-radius:11px;cursor:pointer;letter-spacing:-.01em}
+button.cta:active{background:var(--accent2)}
+button.cta:disabled{opacity:.55}
+.msg{margin-top:12px;font-size:14px;padding:11px 13px;border-radius:9px;display:none}
+.msg.show{display:block}
+.msg.ok{background:rgba(79,196,138,.13);color:var(--ok)}
+.msg.err{background:rgba(255,123,104,.13);color:var(--err)}
+
+/* ---------- phrases ---------- */
+.grp{margin-bottom:22px}
+.grp h4{font-size:12px;text-transform:uppercase;letter-spacing:.1em;
+  color:var(--accent2);margin:0 0 10px;font-weight:700}
+.p{padding:11px 0;border-bottom:1px solid var(--line)}
+.p:last-child{border-bottom:0}
+.p .it{font-size:16.5px;font-weight:600}
+.p .en{font-size:14px;color:var(--muted);margin-top:2px}
+.p .note{font-size:13px;color:var(--accent2);margin-top:5px;line-height:1.45;opacity:.92}
+.lex{background:var(--bg);border-radius:12px;padding:14px 16px;margin-bottom:22px}
+.lex h4{margin-top:0}
+.lex div{font-size:14px;padding:5px 0}
+.lex b{color:var(--ink);font-weight:600}
+.lex span{color:var(--muted)}
+.hidden{display:none}
+footer{padding:34px 0 40px;font-size:13px;color:var(--muted);text-align:center}
+footer a{color:var(--muted)}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <svg class="mark" viewBox="0 0 24 31" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M12 .8C5.5.8.9 5.8.9 12.1c0 7.4 8 15.4 10.4 17.9a1 1 0 0 0 1.4 0c2.4-2.5 10.4-10.5 10.4-17.9C23.1 5.8 18.5.8 12 .8Z" fill="#F38808"/>
+      <circle cx="12" cy="12.2" r="6.4" fill="#F5EFE0"/>
+      <path d="M16.4 16.2c1.2 1 2 1.6 2.9 1.9.4.1.6-.3.35-.6-.7-.8-1.1-1.6-1.25-2.5Z" fill="#F5EFE0"/>
+    </svg>
+    <b>LanguagePin</b>
+  </header>
+
+  <h1>Speak Italian in <em>real places</em> in London.</h1>
+  <p class="sub">
+    A map of places where Italian actually gets spoken — and <b>exactly what to say
+    when you walk in</b>, and what they'll say back.
+  </p>
+
+  <div id="map"></div>
+  <p class="maphint"><span class="dot"></span>
+    <span id="hint">Loading the map…</span></p>
+</div>
+
+<footer>
+  The map is free. The app comes next.<br>
+  Community-mapped — <a href="mailto:hello@languagepin.co.uk">tell us if something's wrong</a>.
+</footer>
+
+<div class="scrim" id="scrim" onclick="closeSheet()"></div>
+
+<div class="sheet" id="sheet">
+  <button class="close" onclick="closeSheet()" aria-label="Close">&times;</button>
+  <div class="grab"></div>
+  <div class="inner">
+    <h2 id="v_name"></h2>
+    <p class="where" id="v_where"></p>
+    <span class="badge" id="v_badge"></span>
+    <div class="meta" id="v_meta"></div>
+
+    <div class="gate" id="gate">
+      <h3>See what to say here</h3>
+      <p>Leave your email and every place on the map unlocks the phrases you'll
+         need — what to say, and what they'll say back.</p>
+      <div class="f">
+        <label for="g_mail">Email</label>
+        <input id="g_mail" type="email" inputmode="email" autocomplete="email"
+               placeholder="you@example.com">
+      </div>
+      <div class="f">
+        <label for="g_bor">Where in London would you practise?</label>
+        <select id="g_bor"><option value="">Choose a borough</option></select>
+      </div>
+      <label class="consent">
+        <input type="checkbox" id="g_ok">
+        <span>Email me when new places are added. No spam, unsubscribe anytime.</span>
+      </label>
+      <button class="cta" id="g_go">Unlock the phrases</button>
+      <div class="msg" id="g_msg"></div>
+    </div>
+
+    <div id="phrases" class="hidden"></div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script type="module">
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+const sb = createClient(
+  'https://jsthwwsxbcianujrjfzt.supabase.co',
+  'sb_publishable_9MytZ3jSqIo2QqL8h2573A_sW_vSGv2'
+);
+
+/* ============ phrase content (from languagepin-saythis) ============ */
+const TYPES=[
+{id:"bar",em:"☕",it:"Bar",en:"Café",
+ groups:[
+  {n:"Walking in",p:[
+   {it:"Buongiorno!",en:"Good morning!",note:"Until roughly 5pm. After that, buonasera."},
+   {it:"Sto imparando l'italiano — posso ordinare in italiano?",en:"I'm learning Italian — can I order in Italian?",note:"Say this first. It turns a stranger into someone on your side."},
+   {it:"Lo prendo al banco.",en:"I'll have it at the counter."},
+   {it:"Preferisco al tavolo, grazie.",en:"I'd rather sit at a table, thanks."},
+   {it:"È libero questo tavolo?",en:"Is this table free?"},
+   {it:"Posso sedermi qui?",en:"May I sit here?"},
+   {it:"C'è posto fuori?",en:"Is there space outside?"}
+  ]},
+  {n:"Ordering",p:[
+   {it:"Un caffè, per favore.",en:"An espresso, please.",note:"In Italy “un caffè” always means an espresso."},
+   {it:"Un cappuccino e un cornetto.",en:"A cappuccino and a croissant."},
+   {it:"Un caffè macchiato.",en:"An espresso with a drop of milk."},
+   {it:"Un caffè in vetro, per favore.",en:"An espresso in a glass, please.",note:"A small thing that makes you sound local."},
+   {it:"Un tè caldo, per favore.",en:"A hot tea, please."},
+   {it:"Un'acqua naturale.",en:"A still water."},
+   {it:"Ne vorrei un altro.",en:"I'd like another one."},
+   {it:"Per me niente, grazie.",en:"Nothing for me, thanks."}
+  ]},
+  {n:"Asking",p:[
+   {it:"Che dolci avete?",en:"What pastries do you have?"},
+   {it:"Fate anche panini?",en:"Do you do sandwiches too?"},
+   {it:"Cosa mi consiglia?",en:"What do you recommend?",note:"Turns a transaction into a conversation. Use it everywhere."},
+   {it:"Posso avere un bicchiere d'acqua?",en:"Could I have a glass of water?"},
+   {it:"Avete il wifi?",en:"Do you have wifi?"},
+   {it:"Fino a che ora siete aperti?",en:"How late are you open?"}
+  ]}],
+ lex:[["espresso","short black coffee"],["macchiato","with a drop of milk"],["corretto","with a shot of liquor"],["lungo","longer, more water"],["ristretto","shorter, stronger"],["in vetro","in a glass"],["al banco","at the counter"],["al tavolo","at a table"],["decaffeinato","decaf"],["cornetto","Italian croissant"]]},
+
+{id:"panetteria",em:"🥖",it:"Panetteria",en:"Bakery",
+ groups:[
+  {n:"Walking in",p:[
+   {it:"Buongiorno!",en:"Good morning!"},
+   {it:"Sto imparando l'italiano — posso ordinare in italiano?",en:"I'm learning Italian — can I order in Italian?"},
+   {it:"Chi è l'ultimo?",en:"Who's last in the queue?",note:"In Italy people don't line up — they ask who arrived last and remember that person. Say this and you're instantly not a tourist."},
+   {it:"Tocca a me?",en:"Is it my turn?"},
+   {it:"Prego, prima lei.",en:"Please, after you.",note:"Letting someone go first. Costs nothing, earns a lot."}
+  ]},
+  {n:"Ordering",p:[
+   {it:"Vorrei un cornetto, per favore.",en:"I'd like a croissant, please."},
+   {it:"Quello lì, per favore.",en:"That one there, please.",note:"Pointing is allowed. Use it."},
+   {it:"Ne prendo due.",en:"I'll take two of them."},
+   {it:"Un filone di pane.",en:"A loaf of bread."},
+   {it:"Mezzo chilo di pane, per favore.",en:"Half a kilo of bread, please."},
+   {it:"Una fetta di torta.",en:"A slice of cake."},
+   {it:"Da portare via, grazie.",en:"To take away, thanks."}
+  ]},
+  {n:"Asking",p:[
+   {it:"Che cosa mi consiglia?",en:"What do you recommend?"},
+   {it:"È integrale?",en:"Is it wholemeal?"},
+   {it:"È fresco di oggi?",en:"Is it baked today?"},
+   {it:"Avete qualcosa senza glutine?",en:"Do you have anything gluten-free?"},
+   {it:"Cosa c'è dentro?",en:"What's in it?"},
+   {it:"Me lo può incartare?",en:"Could you wrap it for me?"}
+  ]}],
+ lex:[["cornetto","Italian croissant"],["sfogliatella","flaky pastry"],["integrale","wholemeal"],["filone","a loaf"],["una fetta","a slice"],["da portare via","takeaway"],["fresco di giornata","baked today"],["lievitazione","proving, rising"]]},
+
+{id:"gelateria",em:"🍦",it:"Gelateria",en:"Ice cream shop",
+ groups:[
+  {n:"Walking in",p:[
+   {it:"Buonasera!",en:"Good evening!"},
+   {it:"Sto imparando l'italiano — posso ordinare in italiano?",en:"I'm learning Italian — can I order in Italian?"}
+  ]},
+  {n:"Ordering",p:[
+   {it:"Coppetta, per favore.",en:"A cup, please."},
+   {it:"Un cono piccolo.",en:"A small cone."},
+   {it:"Due gusti: pistacchio e stracciatella.",en:"Two flavours: pistachio and stracciatella."},
+   {it:"Sì, grazie. / No, grazie.",en:"Yes please. / No thanks."},
+   {it:"Posso avere un cucchiaino?",en:"Could I have a little spoon?"}
+  ]},
+  {n:"Asking",p:[
+   {it:"Che gusti avete?",en:"What flavours do you have?"},
+   {it:"Posso assaggiare?",en:"Can I try a taste?",note:"Completely normal to ask. Nobody minds."},
+   {it:"Che gusto è questo?",en:"What flavour is this one?"},
+   {it:"Qual è il più buono?",en:"Which is the best one?"},
+   {it:"Quanto viene una media?",en:"How much is a medium?"},
+   {it:"È fatto qui?",en:"Is it made here?"}
+  ]}],
+ lex:[["cono","cone"],["coppetta","tub / cup"],["piccola","small"],["media","medium"],["gusto","flavour"],["panna","whipped cream"],["stracciatella","cream with chocolate flakes"],["nocciola","hazelnut"],["cucchiaino","little spoon"]]},
+
+{id:"pizzeria",em:"🍕",it:"Pizzeria",en:"Pizzeria",
+ groups:[
+  {n:"Walking in",p:[
+   {it:"Buonasera, avete un tavolo per due?",en:"Good evening, do you have a table for two?"},
+   {it:"Siamo in quattro.",en:"There are four of us."},
+   {it:"Quanto si aspetta?",en:"How long is the wait?"},
+   {it:"Possiamo aspettare al banco?",en:"Can we wait at the bar?"},
+   {it:"Possiamo sederci fuori?",en:"Can we sit outside?"},
+   {it:"Sto imparando l'italiano — posso ordinare in italiano?",en:"I'm learning Italian — can I order in Italian?"}
+  ]},
+  {n:"Ordering",p:[
+   {it:"Una margherita, per favore.",en:"A margherita, please."},
+   {it:"Senza basilico, per favore.",en:"Without basil, please."},
+   {it:"Con la bufala, si può?",en:"With buffalo mozzarella, is that possible?"},
+   {it:"Si può togliere la cipolla?",en:"Can you leave the onion out?"},
+   {it:"Da portare via.",en:"To take away."},
+   {it:"Una birra media.",en:"A medium beer."}
+  ]},
+  {n:"Asking",p:[
+   {it:"Qual è la vostra specialità?",en:"What's your speciality?"},
+   {it:"Cosa c'è sopra?",en:"What's on it?"},
+   {it:"È piccante?",en:"Is it spicy?"},
+   {it:"Avete opzioni vegetariane?",en:"Do you have vegetarian options?"},
+   {it:"Quanto tempo ci vuole?",en:"How long will it take?"},
+   {it:"L'impasto è napoletano?",en:"Is the dough Neapolitan style?",note:"Ask this and you'll get a passionate answer."}
+  ]}],
+ lex:[["margherita","tomato, mozzarella, basil"],["marinara","tomato, garlic, oregano, no cheese"],["bufala","buffalo mozzarella"],["impasto","dough"],["d'asporto","takeaway"],["coperto","cover charge"],["media","medium (beer)"]]},
+
+{id:"ristorante",em:"🍝",it:"Ristorante",en:"Restaurant",
+ groups:[
+  {n:"Walking in",p:[
+   {it:"Buonasera, ho prenotato a nome…",en:"Good evening, I have a booking under the name…"},
+   {it:"Non abbiamo prenotato, c'è posto?",en:"We haven't booked — is there space?"},
+   {it:"Siamo in due.",en:"There are two of us."},
+   {it:"Possiamo vedere il menù?",en:"Could we see the menu?"},
+   {it:"Sto imparando l'italiano — posso ordinare in italiano?",en:"I'm learning Italian — can I order in Italian?"}
+  ]},
+  {n:"Ordering",p:[
+   {it:"Prendo solo un primo.",en:"I'll just have a first course.",note:"Perfectly normal. You don't have to order every course."},
+   {it:"Per me il piatto del giorno.",en:"I'll have today's special."},
+   {it:"Una bottiglia d'acqua naturale.",en:"A bottle of still water."},
+   {it:"Un quarto di vino rosso.",en:"A quarter litre of red wine."},
+   {it:"Un altro po' di pane, per favore.",en:"A bit more bread, please."},
+   {it:"Va bene così, grazie.",en:"That's all, thanks."}
+  ]},
+  {n:"Asking",p:[
+   {it:"Cosa mi consiglia?",en:"What would you recommend?"},
+   {it:"Qual è il piatto del giorno?",en:"What's today's special?"},
+   {it:"Sono allergico a…",en:"I'm allergic to…",note:"Learn the word for your allergy before you go. It matters."},
+   {it:"Sono vegetariano. / Sono vegetariana.",en:"I'm vegetarian.",note:"First form if you're male, second if female."},
+   {it:"Questo piatto è tipico di qui?",en:"Is this dish typical of this area?"},
+   {it:"È una porzione grande?",en:"Is it a big portion?"}
+  ]}],
+ lex:[["antipasto","starter"],["primo","first course, usually pasta"],["secondo","main course"],["contorno","side dish"],["coperto","cover charge"],["naturale","still water"],["frizzante","sparkling"],["il conto","the bill"]]},
+
+{id:"alimentari",em:"🧀",it:"Alimentari",en:"Deli",
+ groups:[
+  {n:"Walking in",p:[
+   {it:"Buongiorno!",en:"Good morning!"},
+   {it:"Sto imparando l'italiano — posso ordinare in italiano?",en:"I'm learning Italian — can I order in Italian?"},
+   {it:"Tocca a me?",en:"Is it my turn?"}
+  ]},
+  {n:"Ordering",p:[
+   {it:"Un etto di prosciutto crudo, per favore.",en:"100 grams of Parma ham, please.",note:"Un etto = 100g. It's the unit everyone uses."},
+   {it:"Due etti di mortadella.",en:"200 grams of mortadella."},
+   {it:"Me lo può tagliare sottile?",en:"Could you slice it thin?"},
+   {it:"Un po' di più. / Un po' di meno.",en:"A bit more. / A bit less."},
+   {it:"Basta così, grazie.",en:"That's enough, thanks."},
+   {it:"Me lo può mettere sottovuoto?",en:"Could you vacuum-pack it?"}
+  ]},
+  {n:"Asking",p:[
+   {it:"Che formaggio mi consiglia?",en:"Which cheese would you recommend?"},
+   {it:"Posso assaggiare?",en:"May I taste it?"},
+   {it:"È stagionato?",en:"Is it aged?"},
+   {it:"Da dove viene?",en:"Where is it from?",note:"The question that gets you the story, not just the cheese."},
+   {it:"Quanto dura in frigo?",en:"How long does it keep in the fridge?"}
+  ]}],
+ lex:[["un etto","100 grams"],["due etti","200 grams"],["mezzo chilo","half a kilo"],["sottile","thin"],["stagionato","aged"],["fresco","fresh"],["sott'olio","preserved in oil"],["crudo","cured, raw"],["cotto","cooked ham"],["sottovuoto","vacuum-packed"]]},
+
+{id:"enoteca",em:"🍷",it:"Enoteca",en:"Wine bar",
+ groups:[
+  {n:"Walking in",p:[
+   {it:"Buonasera! C'è posto al banco?",en:"Good evening! Is there room at the bar?"},
+   {it:"Un tavolo per due, se possibile.",en:"A table for two, if possible."},
+   {it:"Sto imparando l'italiano — possiamo parlare in italiano?",en:"I'm learning Italian — can we speak in Italian?"}
+  ]},
+  {n:"Ordering",p:[
+   {it:"Un calice di rosso, per favore.",en:"A glass of red, please.",note:"Calice, not bicchiere, when it's wine."},
+   {it:"Un calice di bianco fermo.",en:"A glass of still white."},
+   {it:"Una pinta, per favore.",en:"A pint, please."},
+   {it:"Cosa avete alla spina?",en:"What do you have on tap?"},
+   {it:"Un tagliere di formaggi.",en:"A cheese board."},
+   {it:"Ne prendo un altro.",en:"I'll have another one."}
+  ]},
+  {n:"Asking",p:[
+   {it:"Cosa mi consiglia?",en:"What do you recommend?"},
+   {it:"Qualcosa di leggero.",en:"Something light."},
+   {it:"Che vino è?",en:"What wine is this?"},
+   {it:"Da dove viene?",en:"Where is it from?",note:"Ask this and you'll get a five-minute answer. That's the point."},
+   {it:"Posso assaggiare prima?",en:"Could I taste it first?"},
+   {it:"Quale va bene con questo?",en:"Which one goes well with this?"}
+  ]}],
+ lex:[["calice","wine glass"],["pinta","pint"],["fermo","still"],["frizzante","sparkling"],["alla spina","on tap"],["corposo","full-bodied"],["leggero","light"],["tagliere","sharing board"]]},
+
+{id:"libreria",em:"📚",it:"Libreria",en:"Bookshop",
+ groups:[
+  {n:"Walking in",p:[
+   {it:"Buongiorno, posso dare un'occhiata?",en:"Good morning, may I have a look around?"},
+   {it:"Sto imparando l'italiano — posso chiedere in italiano?",en:"I'm learning Italian — can I ask in Italian?"}
+  ]},
+  {n:"Asking",p:[
+   {it:"Sto cercando un libro facile per chi impara l'italiano.",en:"I'm looking for an easy book for Italian learners."},
+   {it:"Avete qualcosa in italiano?",en:"Do you have anything in Italian?"},
+   {it:"Per un livello principiante.",en:"For a beginner level."},
+   {it:"Cosa mi consiglia di leggere?",en:"What would you recommend I read?"},
+   {it:"Me lo può ordinare?",en:"Could you order it for me?"},
+   {it:"Fate sconti agli studenti?",en:"Do you give student discounts?"},
+   {it:"Dove sono i romanzi?",en:"Where are the novels?"}
+  ]},
+  {n:"Deciding",p:[
+   {it:"Lo prendo, grazie.",en:"I'll take it, thanks."},
+   {it:"Ci penso e torno.",en:"I'll think about it and come back."},
+   {it:"Me lo mette in un sacchetto?",en:"Could you put it in a bag?"}
+  ]}],
+ lex:[["romanzo","novel"],["giallo","crime novel"],["tascabile","paperback"],["usato","second-hand"],["scaffale","shelf"],["autore","author"],["copertina","cover"]]},
+
+{id:"mercato",em:"🍅",it:"Mercato",en:"Market stall",
+ groups:[
+  {n:"Walking in",p:[
+   {it:"Buongiorno!",en:"Good morning!"},
+   {it:"Sto imparando l'italiano — posso ordinare in italiano?",en:"I'm learning Italian — can I order in Italian?"}
+  ]},
+  {n:"Ordering",p:[
+   {it:"Un chilo di pomodori, per favore.",en:"A kilo of tomatoes, please."},
+   {it:"Ne prendo mezzo chilo.",en:"I'll take half a kilo."},
+   {it:"Me li può scegliere lei?",en:"Could you pick them for me?",note:"A compliment disguised as a request. Always works."},
+   {it:"Anche un mazzo di basilico.",en:"A bunch of basil as well."},
+   {it:"Basta così, grazie.",en:"That's all, thanks."}
+  ]},
+  {n:"Asking",p:[
+   {it:"Quanto costano?",en:"How much are they?"},
+   {it:"Cosa c'è di buono oggi?",en:"What's good today?",note:"The single best question at a market."},
+   {it:"Sono maturi?",en:"Are they ripe?"},
+   {it:"Sono di stagione?",en:"Are they in season?"},
+   {it:"Come si cucina?",en:"How do you cook it?"}
+  ]}],
+ lex:[["al chilo","per kilo"],["maturo","ripe"],["di stagione","in season"],["fresco","fresh"],["un mazzo","a bunch"],["sfuso","loose, unpackaged"]]},
+
+{id:"parrucchiere",em:"💈",it:"Parrucchiere",en:"Hairdresser",
+ groups:[
+  {n:"Walking in",p:[
+   {it:"Buongiorno, avete posto oggi?",en:"Good morning, do you have space today?"},
+   {it:"Vorrei prendere un appuntamento.",en:"I'd like to make an appointment."},
+   {it:"Quanto devo aspettare?",en:"How long do I have to wait?"},
+   {it:"Sto imparando l'italiano — possiamo parlare in italiano?",en:"I'm learning Italian — can we speak in Italian?",note:"A haircut is twenty minutes of conversation. Best value on this page."}
+  ]},
+  {n:"Asking",p:[
+   {it:"Vorrei tagliare i capelli.",en:"I'd like a haircut."},
+   {it:"Solo le punte, per favore.",en:"Just the ends, please."},
+   {it:"Non troppo corti.",en:"Not too short."},
+   {it:"Un po' più corti ai lati.",en:"A bit shorter on the sides."},
+   {it:"Anche la barba, grazie.",en:"The beard as well, thanks."},
+   {it:"Come mi consiglia?",en:"What would you suggest?"},
+   {it:"Quanto ci vuole?",en:"How long will it take?"}
+  ]},
+  {n:"At the end",p:[
+   {it:"Mi piace molto, grazie!",en:"I really like it, thank you!"},
+   {it:"Perfetto così.",en:"That's perfect."},
+   {it:"Torno fra un mese.",en:"I'll come back in a month."}
+  ]}],
+ lex:[["taglio","cut"],["punte","the ends"],["sfumatura","fade"],["barba","beard"],["appuntamento","appointment"],["asciugatura","blow-dry"],["scalato","layered"]]}
+];
+
+/* quello che ti sentirai dire dallo staff */
+const HEAR={
+ bar:[
+  {it:"Prego?",en:"Yes? What can I get you?",note:"The most common opener in Italy. It just means: go ahead."},
+  {it:"Sorry, I don't speak Italian.",en:"Nobody here speaks it today.",note:"It happens. Ask: «C'è qualcuno che parla italiano?» — and if not, order in English, tap anyway, and tell us on the check-in screen."},
+  {it:"Al banco o al tavolo?",en:"At the counter or at a table?",note:"The price is often different — the counter is cheaper."},
+  {it:"Zucchero?",en:"Sugar?"},
+  {it:"Altro? / Qualcos'altro?",en:"Anything else?"},
+  {it:"Paga alla cassa.",en:"Pay at the till.",note:"In many bars you pay first, then take the receipt to the counter."}
+ ],
+ panetteria:[
+  {it:"Chi è il prossimo?",en:"Who's next?"},
+  {it:"Desidera?",en:"What would you like?"},
+  {it:"Basta così?",en:"Is that everything?"},
+  {it:"Glielo incarto?",en:"Shall I wrap it for you?"},
+  {it:"Sono quattro e cinquanta.",en:"That's four fifty.",note:"Prices are often said without the word euro."}
+ ],
+ gelateria:[
+  {it:"Cono o coppetta?",en:"Cone or cup?",note:"They will ask you this. Have the answer ready before your turn."},
+  {it:"Quanti gusti?",en:"How many flavours?"},
+  {it:"Piccola, media o grande?",en:"Small, medium or large?"},
+  {it:"Con la panna?",en:"With whipped cream?"},
+  {it:"Vuole assaggiare?",en:"Would you like a taste?"}
+ ],
+ pizzeria:[
+  {it:"Avete prenotato?",en:"Do you have a booking?"},
+  {it:"Quanti siete?",en:"How many of you are there?"},
+  {it:"Dentro o fuori?",en:"Inside or outside?"},
+  {it:"Da bere?",en:"Anything to drink?"},
+  {it:"Tutto bene?",en:"Is everything alright?",note:"Said mid-meal. A nod and grazie is a complete answer."}
+ ],
+ ristorante:[
+  {it:"Avete prenotato?",en:"Do you have a booking?"},
+  {it:"Vi porto il menù.",en:"I'll bring you the menu."},
+  {it:"Avete scelto?",en:"Have you decided?"},
+  {it:"Naturale o frizzante?",en:"Still or sparkling?"},
+  {it:"Tutto bene?",en:"Is everything alright?"},
+  {it:"Prendete un dolce? Un caffè?",en:"Will you have a dessert? A coffee?"}
+ ],
+ alimentari:[
+  {it:"Tocca a lei?",en:"Is it your turn?"},
+  {it:"Dica pure.",en:"Go ahead."},
+  {it:"Quanto ne vuole?",en:"How much would you like?"},
+  {it:"Così va bene?",en:"Is this about right?",note:"Said while holding up the slice. Sì, va bene or un po' di più."},
+  {it:"Le serve altro?",en:"Do you need anything else?"}
+ ],
+ enoteca:[
+  {it:"Rosso o bianco?",en:"Red or white?"},
+  {it:"Glielo faccio assaggiare.",en:"I'll let you taste it."},
+  {it:"Le piace?",en:"Do you like it?"},
+  {it:"Qualcosa da mangiare?",en:"Anything to eat?"}
+ ],
+ libreria:[
+  {it:"Posso aiutarla?",en:"Can I help you?"},
+  {it:"Che genere le piace?",en:"What kind of books do you like?"},
+  {it:"Glielo cerco.",en:"I'll look it up for you."},
+  {it:"Le serve un sacchetto?",en:"Do you need a bag?"}
+ ],
+ mercato:[
+  {it:"Dica!",en:"Go ahead!",note:"The classic market opener. Short, loud, not rude."},
+  {it:"Quanti ne vuole?",en:"How many would you like?"},
+  {it:"Assaggi!",en:"Have a taste!"},
+  {it:"Sono di stagione, freschissimi.",en:"They're in season, very fresh."},
+  {it:"Altro?",en:"Anything else?"}
+ ],
+ parrucchiere:[
+  {it:"Come li vuole?",en:"How would you like it?"},
+  {it:"Corti dietro?",en:"Short at the back?"},
+  {it:"Le lavo i capelli?",en:"Shall I wash your hair?"},
+  {it:"Va bene così?",en:"Is this alright?"}
+ ]
+};
+
+/* gruppi presenti in ogni locale */
+const COMMON=[
+ {n:"Paying",p:[
+  {it:"Quant'è?",en:"How much is it?"},
+  {it:"Quanto le devo?",en:"How much do I owe you?",note:"Warmer than quant'è. Nice with someone who's just helped you."},
+  {it:"Posso pagare con la carta?",en:"Can I pay by card?"},
+  {it:"Pago in contanti.",en:"I'll pay cash."},
+  {it:"Posso pagare con il telefono?",en:"Can I pay with my phone?"},
+  {it:"Ha da cambiare?",en:"Do you have change?",note:"When you're handing over a big note."},
+  {it:"Tenga pure il resto.",en:"Keep the change."},
+  {it:"Possiamo pagare separatamente?",en:"Can we pay separately?"},
+  {it:"Mi fa lo scontrino, per favore?",en:"Could I have the receipt, please?"},
+  {it:"C'è un minimo con la carta?",en:"Is there a minimum for card payments?"}
+ ]},
+ {n:"If you get stuck",p:[
+  {it:"Può ripetere, per favore?",en:"Could you say that again, please?",note:"You will need this. Everyone does. It isn't a failure, it's part of it."},
+  {it:"Può parlare più lentamente?",en:"Could you speak more slowly?"},
+  {it:"Non ho capito, scusi.",en:"I didn't understand, sorry."},
+  {it:"Come si dice… in italiano?",en:"How do you say… in Italian?",note:"The phrase that turns any counter into a lesson."},
+  {it:"Cosa vuol dire?",en:"What does that mean?"},
+  {it:"Come si scrive?",en:"How do you spell it?"},
+  {it:"Sto imparando, abbia pazienza!",en:"I'm learning — bear with me!",note:"Say it with a smile. It has never once gone badly."},
+  {it:"Va bene se parliamo piano?",en:"Is it OK if we speak slowly?"}
+ ]},
+ {n:"Leaving, and a bit of small talk",p:[
+  {it:"Grazie mille!",en:"Thank you very much!"},
+  {it:"Arrivederci! / Ciao!",en:"Goodbye! (formal / informal)"},
+  {it:"Buona giornata! / Buona serata!",en:"Have a good day! / Have a good evening!"},
+  {it:"Che bel posto!",en:"What a lovely place!"},
+  {it:"Da quanto tempo siete qui?",en:"How long have you been here?"},
+  {it:"Lei di dov'è?",en:"Where are you from?"},
+  {it:"Io sono di Londra, ma sto imparando l'italiano.",en:"I'm from London, but I'm learning Italian."},
+  {it:"Torno presto!",en:"I'll be back soon!",note:"And then actually come back. That's the whole product."}
+ ]}
+];
+
+
+/* ============ diagnostics ============ */
+const hint = document.getElementById('hint');
+const fail = m => { hint.textContent = m; hint.style.color = '#FF7B68'; };
+window.addEventListener('error', e => fail('Error: ' + (e.message || 'script failed')));
+window.addEventListener('unhandledrejection', e => fail('Error: ' + (e.reason?.message || e.reason)));
+if (typeof L === 'undefined') fail('Leaflet did not load — check your connection, or open the page over https, not as a local file.');
+
+/* ============ tracking ============ */
+const qs = new URLSearchParams(location.search);
+if (qs.has('utm_source') || qs.has('src')) {
+  sessionStorage.setItem('lp_track', JSON.stringify({
+    utm_source:   qs.get('utm_source'),
+    utm_medium:   qs.get('utm_medium'),
+    utm_campaign: qs.get('utm_campaign'),
+    utm_content:  qs.get('utm_content'),
+    source: qs.get('utm_source') || qs.get('src') || 'organic'
+  }));
+}
+const track = () => JSON.parse(sessionStorage.getItem('lp_track') ||
+  '{"source":"organic"}');
+
+const BOROUGHS = ["Barking and Dagenham","Barnet","Bexley","Brent","Bromley","Camden",
+"City of London","Croydon","Ealing","Enfield","Greenwich","Hackney",
+"Hammersmith and Fulham","Haringey","Harrow","Havering","Hillingdon","Hounslow",
+"Islington","Kensington and Chelsea","Kingston upon Thames","Lambeth","Lewisham",
+"Merton","Newham","Redbridge","Richmond upon Thames","Southwark","Sutton",
+"Tower Hamlets","Waltham Forest","Wandsworth","Westminster"];
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g,
+  c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+BOROUGHS.forEach(b => {
+  const o = document.createElement('option');
+  o.value = b; o.textContent = b; $('g_bor').appendChild(o);
+});
+
+const unlocked = () => localStorage.getItem('lp_unlocked') === '1';
+
+/* ============ map ============ */
+const map = L.map('map', { zoomControl: false, attributionControl: true })
+  .setView([51.5100, -0.1180], 12);
+L.control.zoom({ position: 'bottomright' }).addTo(map);
+L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+  attribution: '&copy; OpenStreetMap &copy; CARTO', maxZoom: 19
+}).addTo(map);
+
+const icon = L.divIcon({
+  className: '', iconSize: [26, 34], iconAnchor: [13, 34], popupAnchor: [0, -30],
+  html: `<svg class="pinmark" viewBox="0 0 24 31" xmlns="http://www.w3.org/2000/svg">
+    <path d="M12 .8C5.5.8.9 5.8.9 12.1c0 7.4 8 15.4 10.4 17.9a1 1 0 0 0 1.4 0c2.4-2.5 10.4-10.5 10.4-17.9C23.1 5.8 18.5.8 12 .8Z" fill="#F38808" stroke="#053F52" stroke-width=".8"/>
+    <circle cx="12" cy="12.2" r="6.4" fill="#F5EFE0"/>
+    <path d="M16.4 16.2c1.2 1 2 1.6 2.9 1.9.4.1.6-.3.35-.6-.7-.8-1.1-1.6-1.25-2.5Z" fill="#F5EFE0"/></svg>`
+});
+
+let current = null;
+
+async function loadVenues(){
+  const { data, error } = await sb.from('venues')
+    .select('id,name,venue_type,area,borough,address,lat,lng,best_time,why,verification')
+    .eq('is_active', true);
+
+  if (error){ fail('Map data error: ' + error.message); return; }
+  if (!data.length){
+    $('hint').textContent = 'The first places are being added right now — check back shortly.';
+    return;
+  }
+  const pts = [];
+  data.forEach(v => {
+    if (v.lat == null || v.lng == null) return;
+    L.marker([v.lat, v.lng], { icon }).addTo(map).on('click', () => openVenue(v));
+    pts.push([v.lat, v.lng]);
+  });
+  if (pts.length) map.fitBounds(pts, { padding: [50, 50], maxZoom: 14 });
+  $('hint').textContent = data.length + ' places mapped. Tap a pin.';
+}
+loadVenues();
+
+/* ============ sheet ============ */
+const LABEL = { confirmed:'Italian spoken · confirmed',
+                italian_staff:'Italian staff reported',
+                unverified:'Not verified yet' };
+
+window.closeSheet = () => {
+  $('sheet').classList.remove('on');
+  $('scrim').classList.remove('on');
+};
+
+function openVenue(v){
+  current = v;
+  $('v_name').textContent = v.name;
+  $('v_where').textContent = [v.area, v.borough].filter(Boolean).join(' · ') || 'London';
+  const b = $('v_badge');
+  b.textContent = LABEL[v.verification] || v.verification;
+  b.className = 'badge b-' + v.verification;
+
+  const bits = [];
+  if (v.address)   bits.push(`<div><span>Address</span>${esc(v.address)}</div>`);
+  if (v.best_time) bits.push(`<div><span>Best time to go</span>${esc(v.best_time)}</div>`);
+  if (v.why)       bits.push(`<div><span>Why here</span>${esc(v.why)}</div>`);
+  $('v_meta').innerHTML = bits.join('') ||
+    '<div><span>Address</span>Coming soon</div>';
+
+  render();
+  $('sheet').classList.add('on');
+  $('scrim').classList.add('on');
+}
+
+function render(){
+  if (!unlocked()){
+    $('gate').classList.remove('hidden');
+    $('phrases').classList.add('hidden');
+    return;
+  }
+  $('gate').classList.add('hidden');
+  $('phrases').classList.remove('hidden');
+
+  const t = TYPES.find(x => x.id === (current.venue_type || 'bar')) || TYPES[0];
+  let html = '';
+  t.groups.forEach(g => { html += grpHtml(g); });
+  if (t.lex && t.lex.length){
+    html += '<div class="lex"><h4>Words you\'ll hear here</h4>' +
+      t.lex.map(([w, m]) => `<div><b>${esc(w)}</b> — <span>${esc(m)}</span></div>`).join('') +
+      '</div>';
+  }
+  COMMON.forEach(g => { html += grpHtml(g); });
+  $('phrases').innerHTML = html;
+}
+
+function grpHtml(g){
+  return `<div class="grp"><h4>${esc(g.n)}</h4>` + g.p.map(p =>
+    `<div class="p"><div class="it">${esc(p.it)}</div>
+     <div class="en">${esc(p.en)}</div>` +
+    (p.note ? `<div class="note">${esc(p.note)}</div>` : '') +
+    `</div>`).join('') + `</div>`;
+}
+
+/* ============ gate ============ */
+$('g_go').addEventListener('click', async () => {
+  const m = $('g_msg');
+  const email = $('g_mail').value.trim().toLowerCase();
+  const bor = $('g_bor').value;
+
+  const okMail = /^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(email);
+  if (!okMail){ m.className = 'msg show err'; m.textContent = 'Please enter a valid email.'; return; }
+
+  $('g_go').disabled = true;
+  const t = track();
+  const { error } = await sb.from('smoke_leads').insert({
+    email,
+    borough: bor || null,
+    consent: $('g_ok').checked,
+    source: t.source || 'organic',
+    utm_source: t.utm_source, utm_medium: t.utm_medium,
+    utm_campaign: t.utm_campaign, utm_content: t.utm_content
+  });
+  $('g_go').disabled = false;
+
+  // duplicate email = already a lead: unlock anyway, don't punish them
+  if (error && !String(error.message).includes('duplicate')){
+    m.className = 'msg show err';
+    m.textContent = 'Something went wrong. Try again in a moment.';
+    return;
+  }
+  localStorage.setItem('lp_unlocked', '1');
+  render();
+  $('sheet').scrollTop = 0;
+});
+</script>
+</body>
+</html>
