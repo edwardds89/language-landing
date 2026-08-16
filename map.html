@@ -66,6 +66,12 @@ h2{font-size:22px;margin:0 0 4px;letter-spacing:-.01em;font-weight:750}
 .meta div+div{margin-top:9px}
 .meta span{color:var(--muted);display:block;font-size:11.5px;
   text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px}
+.go{display:flex;align-items:center;justify-content:center;gap:9px;
+  width:100%;padding:14px;margin-bottom:20px;border-radius:11px;
+  background:transparent;border:1px solid var(--accent);color:var(--accent2);
+  font:600 15.5px/1 inherit;text-decoration:none;cursor:pointer}
+.go:active{background:rgba(243,136,8,.12)}
+.go svg{width:17px;height:17px;flex:0 0 17px}
 
 /* ---------- gate ---------- */
 .gate{background:var(--bg);border:1px solid var(--accent);border-radius:14px;
@@ -148,6 +154,14 @@ footer a{color:var(--muted)}
     <p class="where" id="v_where"></p>
     <span class="badge" id="v_badge"></span>
     <div class="meta" id="v_meta"></div>
+
+    <a class="go" id="v_go" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <polygon points="3 11 22 2 13 21 11 13 3 11"/>
+      </svg>
+      Take me there
+    </a>
 
     <div class="gate" id="gate">
       <h3>See what to say here</h3>
@@ -652,6 +666,10 @@ function openVenue(v){
   $('v_meta').innerHTML = bits.join('') ||
     '<div><span>Address</span>Coming soon</div>';
 
+  const dest = encodeURIComponent(v.lat + ',' + v.lng);
+  $('v_go').href = 'https://www.google.com/maps/dir/?api=1&destination=' + dest +
+    '&travelmode=transit';
+
   render();
   $('sheet').classList.add('on');
   $('scrim').classList.add('on');
@@ -708,9 +726,14 @@ $('g_go').addEventListener('click', async () => {
   $('g_go').disabled = false;
 
   // duplicate email = already a lead: unlock anyway, don't punish them
-  if (error && !String(error.message).includes('duplicate')){
+  const dup = error && (error.code === '23505' ||
+    /duplicate|already exists/i.test(error.message || ''));
+  if (error && !dup){
+    console.error('signup failed', error);
     m.className = 'msg show err';
-    m.textContent = 'Something went wrong. Try again in a moment.';
+    m.textContent = (error.message || 'Unknown error') +
+      (error.code ? ' [' + error.code + ']' : '') +
+      (error.hint ? ' — ' + error.hint : '');
     return;
   }
   localStorage.setItem('lp_unlocked', '1');
