@@ -6,99 +6,101 @@
 <meta name="robots" content="noindex, nofollow">
 <title>LanguagePin · Staff</title>
 <style>
-  :root{
-    --bg:#053F52; --bg2:#085F7A; --card:#0A4E64;
-    --line:#12708C; --ink:#F5EFE0; --muted:#9FBECB;
-    --accent:#F38808; --accent2:#FFB060;
-    --ok:#4FC48A; --err:#FF7B68;
-  }
-  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-  body{
-    margin:0;background:var(--bg);color:var(--ink);
-    font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
-    padding:20px 16px 60px;
-  }
-  .wrap{max-width:560px;margin:0 auto}
-  header{display:flex;align-items:center;gap:10px;margin-bottom:22px}
-  .pin{height:30px;width:auto;flex:0 0 auto;display:block}
-  h1{font-size:19px;margin:0;font-weight:700;letter-spacing:-.01em}
-  .tag{font-size:11px;text-transform:uppercase;letter-spacing:.09em;
-       color:var(--accent);border:1px solid var(--accent);
-       padding:2px 7px;border-radius:99px}
-  .card{background:var(--card);border:1px solid var(--line);
-        border-radius:14px;padding:18px;margin-bottom:16px}
-  label{display:block;font-size:12px;text-transform:uppercase;
-        letter-spacing:.07em;color:var(--muted);margin:14px 0 6px}
-  label:first-child{margin-top:0}
-  input,select,textarea{
-    width:100%;padding:12px 13px;font-size:16px;font-family:inherit;
-    background:var(--bg2);border:1px solid var(--line);
-    border-radius:10px;color:var(--ink);
-  }
-  input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);border-color:transparent}
-  textarea{min-height:74px;resize:vertical}
-  .row{display:flex;gap:10px}
-  .row>div{flex:1}
-  button{
-    width:100%;margin-top:18px;padding:14px;font-size:16px;font-weight:700;
-    font-family:inherit;background:var(--accent);color:#052733;
-    border:0;border-radius:10px;cursor:pointer;
-  }
-  button:active{background:var(--accent2)}
-  button:disabled{opacity:.5;cursor:default}
-  .ghost{background:transparent;color:var(--muted);
-         border:1px solid var(--line);font-weight:500;font-size:14px;padding:10px}
-  .msg{margin-top:14px;padding:11px 13px;border-radius:9px;font-size:14px;display:none}
-  .msg.show{display:block}
-  .msg.ok{background:rgba(63,191,127,.13);color:var(--ok);border:1px solid rgba(63,191,127,.35)}
-  .msg.err{background:rgba(255,107,90,.13);color:var(--err);border:1px solid rgba(255,107,90,.35)}
-  .hint{font-size:12.5px;color:var(--muted);margin-top:6px;line-height:1.45}
-  .who{font-size:12.5px;color:var(--muted);display:flex;
-       justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}
-  .who button{width:auto;margin:0;padding:6px 12px;font-size:12.5px}
-  h2{font-size:14px;text-transform:uppercase;letter-spacing:.07em;
-     color:var(--muted);margin:0 0 14px;font-weight:600}
-  .list{font-size:14px}
-  .v{padding:11px 0;border-bottom:1px solid var(--line);display:flex;
-     justify-content:space-between;gap:12px;align-items:flex-start}
-  .v:last-child{border-bottom:0}
-  .v b{font-weight:600;display:block}
-  .v small{color:var(--muted);font-size:12.5px}
-  .badge{font-size:10.5px;padding:3px 8px;border-radius:99px;white-space:nowrap;flex:0 0 auto}
-  .b-confirmed{background:rgba(63,191,127,.16);color:var(--ok)}
-  .b-staff{background:rgba(240,138,30,.16);color:var(--accent2)}
-  .b-unverified{background:rgba(157,182,190,.14);color:var(--muted)}
-  .hide{display:none}
-  .ac{position:relative}
-  .aclist{position:absolute;left:0;right:0;top:calc(100% + 4px);z-index:50;
-    background:var(--bg2);border:1px solid var(--line);border-radius:10px;
-    overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.4);display:none}
-  .aclist.on{display:block}
-  .aclist div{padding:11px 13px;font-size:14.5px;cursor:pointer;
-    border-bottom:1px solid var(--line)}
-  .aclist div:last-child{border-bottom:0}
-  .aclist div:hover,.aclist div.sel{background:var(--card)}
-  .aclist small{display:block;color:var(--muted);font-size:12.5px;margin-top:2px}
-  .coord{font-size:12.5px;margin-top:7px;display:flex;align-items:center;gap:8px}
-  .coord .pill{background:var(--bg2);border:1px solid var(--line);border-radius:99px;
-    padding:4px 11px;font-family:ui-monospace,monospace;font-size:12px}
-  .coord .off{color:var(--err)}
-  .coord .on{color:var(--ok)}
-  .coord a{color:var(--muted);text-decoration:underline;cursor:pointer}
-  .hrs{border:1px solid var(--line);border-radius:12px;overflow:hidden}
-  .day{display:flex;align-items:center;gap:8px;padding:9px 11px;
-    border-bottom:1px solid var(--line)}
-  .day:last-child{border-bottom:0}
-  .day label.dl{margin:0;width:42px;flex:0 0 42px;font-size:12px;letter-spacing:.05em;
-    text-transform:none;color:var(--ink)}
-  .day input[type=checkbox]{width:18px;height:18px;flex:0 0 18px;margin:0;
-    accent-color:var(--accent)}
-  .day select{padding:7px 8px;font-size:14px;flex:1;min-width:0}
-  .day .sep{color:var(--muted);font-size:13px}
-  .day.off select{opacity:.35;pointer-events:none}
-  .copyall{margin-top:9px;font-size:13px;color:var(--accent2);
-    background:transparent;border:0;padding:0;cursor:pointer;width:auto;
-    text-decoration:underline;font-family:inherit}
+:root{
+  --bg:#053F52; --bg2:#085F7A; --card:#0A4E64; --line:#12708C;
+  --ink:#F5EFE0; --muted:#9FBECB;
+  --accent:#F38808; --accent2:#FFB060;
+  --ok:#4FC48A; --err:#FF7B68;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  padding:20px 16px 70px}
+.wrap{max-width:600px;margin:0 auto}
+header{display:flex;align-items:center;gap:10px;margin-bottom:22px}
+header .pin{height:30px;width:auto;flex:0 0 auto;display:block}
+h1{font-size:19px;margin:0;font-weight:700;letter-spacing:-.01em}
+.tag{font-size:11px;text-transform:uppercase;letter-spacing:.09em;color:var(--accent);
+  border:1px solid var(--accent);padding:2px 7px;border-radius:99px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;
+  padding:18px;margin-bottom:16px}
+label{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.07em;
+  color:var(--muted);margin:14px 0 6px}
+label:first-child{margin-top:0}
+input,select,textarea{width:100%;padding:12px 13px;font-size:16px;font-family:inherit;
+  background:var(--bg2);border:1px solid var(--line);border-radius:10px;color:var(--ink)}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);border-color:transparent}
+textarea{min-height:74px;resize:vertical}
+button{width:100%;margin-top:18px;padding:14px;font-size:16px;font-weight:700;
+  font-family:inherit;background:var(--accent);color:#052733;border:0;
+  border-radius:10px;cursor:pointer}
+button:active{background:var(--accent2)}
+button:disabled{opacity:.5;cursor:default}
+.ghost{background:transparent;color:var(--muted);border:1px solid var(--line);
+  font-weight:500;font-size:14px;padding:10px}
+.danger{background:transparent;color:var(--err);border:1px solid var(--err);font-weight:600}
+.msg{margin-top:14px;padding:11px 13px;border-radius:9px;font-size:14px;display:none}
+.msg.show{display:block}
+.msg.ok{background:rgba(79,196,138,.13);color:var(--ok);border:1px solid rgba(79,196,138,.35)}
+.msg.err{background:rgba(255,123,104,.13);color:var(--err);border:1px solid rgba(255,123,104,.35)}
+.hint{font-size:12.5px;color:var(--muted);margin-top:6px;line-height:1.45}
+.who{font-size:12.5px;color:var(--muted);display:flex;justify-content:space-between;
+  align-items:center;gap:12px;margin-bottom:14px}
+.who button{width:auto;margin:0;padding:6px 12px;font-size:12.5px}
+h2{font-size:14px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);
+  margin:0 0 14px;font-weight:600;display:flex;justify-content:space-between;align-items:center}
+h2 .x{font-size:12px;color:var(--accent2);cursor:pointer;text-transform:none;letter-spacing:0}
+.hide{display:none}
+
+.ac{position:relative}
+.aclist{position:absolute;left:0;right:0;top:calc(100% + 4px);z-index:50;background:var(--bg2);
+  border:1px solid var(--line);border-radius:10px;overflow:hidden;
+  box-shadow:0 10px 30px rgba(0,0,0,.4);display:none}
+.aclist.on{display:block}
+.aclist div{padding:11px 13px;font-size:14.5px;cursor:pointer;border-bottom:1px solid var(--line)}
+.aclist div:last-child{border-bottom:0}
+.aclist div:hover{background:var(--card)}
+.aclist small{display:block;color:var(--muted);font-size:12.5px;margin-top:2px}
+.coord{font-size:12.5px;margin-top:7px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.coord .pill{background:var(--bg2);border:1px solid var(--line);border-radius:99px;
+  padding:4px 11px;font-family:ui-monospace,monospace;font-size:12px}
+.coord .off{color:var(--err)} .coord .on{color:var(--ok)}
+.coord a{color:var(--muted);text-decoration:underline;cursor:pointer}
+
+.hrs{border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.day{padding:9px 11px;border-bottom:1px solid var(--line)}
+.day:last-child{border-bottom:0}
+.dtop{display:flex;align-items:center;gap:9px}
+.dtop input[type=checkbox]{width:18px;height:18px;flex:0 0 18px;margin:0;accent-color:var(--accent)}
+.dtop .dl{margin:0;width:38px;flex:0 0 38px;font-size:12.5px;text-transform:none;
+  letter-spacing:0;color:var(--ink)}
+.dtop .add{margin:0;width:auto;padding:3px 9px;font-size:12px;background:transparent;
+  color:var(--accent2);border:1px solid var(--line);border-radius:99px;font-weight:600}
+.slots{margin-top:7px;padding-left:47px}
+.slot{display:flex;align-items:center;gap:7px;margin-top:6px}
+.slot select{padding:7px 8px;font-size:14px;flex:1;min-width:0}
+.slot .sep{color:var(--muted);font-size:13px;flex:0 0 auto}
+.slot .rm{margin:0;width:auto;padding:4px 9px;font-size:15px;line-height:1;
+  background:transparent;color:var(--muted);border:1px solid var(--line);border-radius:8px}
+.day.off .slots,.day.off .add{display:none}
+.copyall{margin-top:9px;font-size:13px;color:var(--accent2);background:transparent;border:0;
+  padding:0;cursor:pointer;width:auto;text-decoration:underline;font-family:inherit}
+
+.v{padding:12px 0;border-bottom:1px solid var(--line)}
+.v:last-child{border-bottom:0}
+.vtop{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.v b{font-weight:600;display:block;font-size:15px}
+.v small{color:var(--muted);font-size:12.5px;display:block;margin-top:1px}
+.badge{font-size:10.5px;padding:3px 8px;border-radius:99px;white-space:nowrap;flex:0 0 auto}
+.b-confirmed{background:rgba(79,196,138,.16);color:var(--ok)}
+.b-italian_staff{background:rgba(243,136,8,.16);color:var(--accent2)}
+.b-unverified{background:rgba(159,190,203,.14);color:var(--muted)}
+.acts{display:flex;gap:8px;margin-top:9px}
+.acts button{margin:0;width:auto;padding:6px 13px;font-size:13px;font-weight:600;border-radius:8px}
+.confirm{background:rgba(255,123,104,.1);border:1px solid var(--err);border-radius:10px;
+  padding:12px;margin-top:10px;font-size:13.5px}
+.confirm .row{display:flex;gap:8px;margin-top:10px}
+.confirm button{margin:0;width:auto;padding:7px 14px;font-size:13px}
 </style>
 </head>
 <body>
@@ -110,79 +112,62 @@
       <circle cx="12" cy="12.2" r="6.4" fill="#F5EFE0"/>
       <path d="M16.4 16.2c1.2 1 2 1.6 2.9 1.9.4.1.6-.3.35-.6-.7-.8-1.1-1.6-1.25-2.5Z" fill="#F5EFE0"/>
     </svg>
-    <h1>LanguagePin</h1>
-    <span class="tag">Staff</span>
+    <h1>LanguagePin</h1><span class="tag">Staff</span>
   </header>
 
-  <!-- LOGIN -->
   <section id="login" class="card hide">
     <h2>Sign in</h2>
     <label for="mail">Staff email</label>
     <input id="mail" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com">
     <button id="sendLink">Send magic link</button>
-    <div class="hint">No password. You get a one-time link by email. Open it on this same device.</div>
+    <div class="hint">No password. Open the link on this same device.</div>
     <div id="loginMsg" class="msg"></div>
   </section>
 
-  <!-- DENIED -->
   <section id="denied" class="card hide">
     <h2>No staff access</h2>
-    <p class="hint" style="margin-top:0">
-      You're signed in, but this account isn't marked as staff.
-      Ask for <code>is_staff = true</code> on your profile row.
-    </p>
+    <p class="hint" style="margin-top:0">Signed in, but this account isn't staff.</p>
     <button class="ghost" onclick="signOut()">Sign out</button>
   </section>
 
-  <!-- ADD VENUE -->
   <section id="app" class="hide">
-
     <div class="who">
       <span id="whoami"></span>
       <button class="ghost" onclick="signOut()">Sign out</button>
     </div>
 
     <div class="card">
-      <h2>Add a venue</h2>
+      <h2><span id="formTitle">Add a venue</span>
+          <span class="x hide" id="cancelEdit">cancel edit</span></h2>
 
       <label for="f_name">Name *</label>
       <input id="f_name" placeholder="Bar Italia">
 
-      <div class="row">
-        <div>
-          <label for="f_type">Type</label>
-          <select id="f_type">
-            <option value="">—</option>
-            <option value="bar">Café / Bar</option>
-            <option value="panetteria">Bakery</option>
-            <option value="gelateria">Gelateria</option>
-            <option value="pizzeria">Pizzeria</option>
-            <option value="ristorante">Restaurant</option>
-            <option value="alimentari">Deli</option>
-            <option value="enoteca">Wine bar</option>
-            <option value="libreria">Bookshop</option>
-            <option value="mercato">Market stall</option>
-            <option value="parrucchiere">Hairdresser</option>
-          </select>
-        </div>
-        <div>
-          <label for="f_borough">Borough</label>
-          <select id="f_borough"><option value="">—</option></select>
-        </div>
-      </div>
-
-      <label for="f_area">Area / neighbourhood</label>
-      <input id="f_area" placeholder="Soho">
+      <label for="f_type">Type</label>
+      <select id="f_type">
+        <option value="">—</option>
+        <option value="bar">Café / Bar</option>
+        <option value="panetteria">Bakery</option>
+        <option value="gelateria">Gelateria</option>
+        <option value="pizzeria">Pizzeria</option>
+        <option value="ristorante">Restaurant</option>
+        <option value="alimentari">Deli</option>
+        <option value="enoteca">Wine bar</option>
+        <option value="libreria">Bookshop</option>
+        <option value="mercato">Market stall</option>
+        <option value="parrucchiere">Hairdresser</option>
+      </select>
 
       <label for="f_address">Address *</label>
       <div class="ac">
         <input id="f_address" autocomplete="off" placeholder="Start typing: 22 Frith St…">
         <div class="aclist" id="ac"></div>
       </div>
-      <div class="coord" id="coord">
-        <span class="off">No location picked yet</span>
-      </div>
+      <div class="coord" id="coord"></div>
       <div class="hint">Pick a suggestion so the pin lands in the right spot.</div>
+
+      <label for="f_area">Area shown to learners</label>
+      <input id="f_area" placeholder="Soho">
 
       <label>Best time to go</label>
       <div class="hrs" id="hrs"></div>
@@ -195,11 +180,9 @@
       <select id="f_ver">
         <option value="unverified">Unverified — not checked yet</option>
         <option value="italian_staff">Italian staff reported</option>
-        <option value="confirmed">Confirmed — I asked them</option>
+        <option value="confirmed">Confirmed — someone asked them</option>
       </select>
-      <div class="hint">
-        Only pick "Confirmed" if someone actually asked the venue. This label is shown to learners.
-      </div>
+      <div class="hint">Only pick "Confirmed" if someone actually asked the venue.</div>
 
       <label for="f_nfc">NFC tag UID (optional)</label>
       <input id="f_nfc" placeholder="Leave blank until a tag is placed">
@@ -209,98 +192,123 @@
     </div>
 
     <div class="card">
-      <h2>Venues on the map (<span id="count">0</span>)</h2>
-      <div id="list" class="list"><div class="hint">Loading…</div></div>
+      <h2>On the map (<span id="count">0</span>)</h2>
+      <div id="list"><div class="hint">Loading…</div></div>
     </div>
 
+    <div class="card hide" id="binCard">
+      <h2>Removed venues (<span id="binCount">0</span>)
+          <span class="x" id="toggleBin">show</span></h2>
+      <div id="bin" class="hide"></div>
+    </div>
   </section>
 </div>
 
 <script type="module">
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-
-const SUPABASE_URL = 'https://jsthwwsxbcianujrjfzt.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_9MytZ3jSqIo2QqL8h2573A_sW_vSGv2';
-const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
-
-// Only these addresses can even request a link.
-// This is convenience, not security — the real gate is is_staff + RLS.
+const sb = createClient('https://jsthwwsxbcianujrjfzt.supabase.co',
+                        'sb_publishable_9MytZ3jSqIo2QqL8h2573A_sW_vSGv2');
 const STAFF_EMAILS = ['edoardo@teachers.org'];
 
-const BOROUGHS = ["Barking and Dagenham","Barnet","Bexley","Brent","Bromley","Camden",
-"City of London","Croydon","Ealing","Enfield","Greenwich","Hackney",
-"Hammersmith and Fulham","Haringey","Harrow","Havering","Hillingdon","Hounslow",
-"Islington","Kensington and Chelsea","Kingston upon Thames","Lambeth","Lewisham",
-"Merton","Newham","Redbridge","Richmond upon Thames","Southwark","Sutton",
-"Tower Hamlets","Waltham Forest","Wandsworth","Westminster"];
-
 const $ = id => document.getElementById(id);
-const show = (el, on) => el.classList.toggle('hide', !on);
+const show = (el,on) => el.classList.toggle('hide', !on);
+const esc = s => String(s ?? '').replace(/[&<>"']/g,
+  c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const msg = (el,t,k) => { el.textContent = t; el.className = 'msg show ' + k; };
+const clearMsg = el => { el.className = 'msg'; };
 
-function msg(el, text, kind){
-  el.textContent = text;
-  el.className = 'msg show ' + kind;
-}
-function clearMsg(el){ el.className = 'msg'; }
-
-// ---------- opening hours ----------
+/* ---------------- hours ---------------- */
 const DAYS = [['mon','Mon'],['tue','Tue'],['wed','Wed'],['thu','Thu'],
               ['fri','Fri'],['sat','Sat'],['sun','Sun']];
-const TIMES = (() => { const t = [];
-  for (let h = 6; h <= 23; h++) for (const m of ['00','30'])
-    t.push(String(h).padStart(2,'0') + ':' + m);
-  t.push('24:00'); return t; })();
+const TIMES = (() => { const t=[]; for(let h=6;h<=23;h++) for(const m of ['00','30'])
+  t.push(String(h).padStart(2,'0')+':'+m); t.push('24:00'); return t; })();
+const opts = sel => TIMES.map(t=>`<option${t===sel?' selected':''}>${t}</option>`).join('');
 
-const hrsBox = $('hrs');
-DAYS.forEach(([k, lbl]) => {
+DAYS.forEach(([k,lbl]) => {
   const row = document.createElement('div');
-  row.className = 'day off'; row.dataset.k = k;
-  row.innerHTML = `<input type="checkbox" id="ck_${k}">
-    <label class="dl" for="ck_${k}">${lbl}</label>
-    <select id="from_${k}">${TIMES.map(t=>`<option${t==='10:00'?' selected':''}>${t}</option>`).join('')}</select>
-    <span class="sep">to</span>
-    <select id="to_${k}">${TIMES.map(t=>`<option${t==='12:00'?' selected':''}>${t}</option>`).join('')}</select>`;
-  hrsBox.appendChild(row);
+  row.className = 'day off'; row.id = 'day_'+k;
+  row.innerHTML = `<div class="dtop">
+      <input type="checkbox" id="ck_${k}">
+      <label class="dl" for="ck_${k}">${lbl}</label>
+      <button type="button" class="add">+ time slot</button>
+    </div><div class="slots" id="slots_${k}"></div>`;
+  $('hrs').appendChild(row);
   row.querySelector('input').addEventListener('change', e => {
     row.classList.toggle('off', !e.target.checked);
+    if (e.target.checked && !$('slots_'+k).children.length) addSlot(k);
   });
+  row.querySelector('.add').addEventListener('click', () => addSlot(k));
 });
 
+function addSlot(k, from, to){
+  const box = $('slots_'+k);
+  if (box.children.length >= 3) return;
+  const d = document.createElement('div');
+  d.className = 'slot';
+  d.innerHTML = `<select>${opts(from || '10:00')}</select><span class="sep">to</span>
+                 <select>${opts(to || '12:00')}</select>
+                 <button type="button" class="rm" title="Remove">&times;</button>`;
+  d.querySelector('.rm').addEventListener('click', () => d.remove());
+  box.appendChild(d);
+}
+
 $('copyall').addEventListener('click', () => {
-  const first = DAYS.map(([k]) => k).find(k => $('ck_' + k).checked);
+  const first = DAYS.map(([k])=>k).find(k => $('ck_'+k).checked);
   if (!first) return;
-  const f = $('from_' + first).value, t = $('to_' + first).value;
+  const slots = [...$('slots_'+first).children].map(s => {
+    const sel = s.querySelectorAll('select'); return [sel[0].value, sel[1].value];
+  });
   DAYS.forEach(([k]) => {
-    $('ck_' + k).checked = true;
-    $('from_' + k).value = f; $('to_' + k).value = t;
-    $('ck_' + k).closest('.day').classList.remove('off');
+    $('ck_'+k).checked = true;
+    $('day_'+k).classList.remove('off');
+    $('slots_'+k).innerHTML = '';
+    slots.forEach(([a,b]) => addSlot(k,a,b));
   });
 });
 
 function readHours(){
   const out = {};
   DAYS.forEach(([k]) => {
-    if ($('ck_' + k).checked) out[k] = [$('from_' + k).value, $('to_' + k).value];
+    if (!$('ck_'+k).checked) return;
+    const s = [...$('slots_'+k).children].map(el => {
+      const sel = el.querySelectorAll('select'); return [sel[0].value, sel[1].value];
+    }).filter(pair => pair[0] < pair[1]);
+    if (s.length) out[k] = s;
   });
   return Object.keys(out).length ? out : null;
 }
-function hoursText(h){
-  if (!h) return null;
-  const groups = [];
-  DAYS.forEach(([k, lbl]) => {
-    if (!h[k]) return;
-    const span = h[k][0] + '–' + h[k][1];
-    const last = groups[groups.length - 1];
-    if (last && last.span === span && last.endIdx === DAYS.findIndex(d=>d[0]===k) - 1){
-      last.to = lbl; last.endIdx++;
-    } else {
-      groups.push({ from: lbl, to: null, span, endIdx: DAYS.findIndex(d=>d[0]===k) });
-    }
+
+function setHours(h){
+  DAYS.forEach(([k]) => {
+    const on = !!(h && h[k]);
+    $('ck_'+k).checked = on;
+    $('day_'+k).classList.toggle('off', !on);
+    $('slots_'+k).innerHTML = '';
+    if (on) h[k].forEach(pair => addSlot(k, pair[0], pair[1]));
   });
-  return groups.map(g => (g.to ? g.from + '–' + g.to : g.from) + ' ' + g.span).join(', ');
 }
 
-// ---------- address autocomplete (Photon / OpenStreetMap, no key) ----------
+function hoursText(h){
+  if (!h) return null;
+  const seen = [];
+  DAYS.forEach(([k,lbl], idx) => {
+    if (!h[k]) return;
+    const span = h[k].map(p => p[0]+'–'+p[1]).join(', ');
+    const last = seen[seen.length-1];
+    if (last && last.span === span && last.idx === idx-1){ last.to = lbl; last.idx = idx; }
+    else seen.push({ from:lbl, to:null, span, idx });
+  });
+  return seen.map(g => (g.to ? g.from+'–'+g.to : g.from) + ' ' + g.span).join(' · ');
+}
+
+/* ---------------- address autocomplete ---------------- */
+const BOROUGHS = ["Barking and Dagenham","Barnet","Bexley","Brent","Bromley","Camden",
+"City of London","Croydon","Ealing","Enfield","Greenwich","Hackney","Hammersmith and Fulham",
+"Haringey","Harrow","Havering","Hillingdon","Hounslow","Islington","Kensington and Chelsea",
+"Kingston upon Thames","Lambeth","Lewisham","Merton","Newham","Redbridge",
+"Richmond upon Thames","Southwark","Sutton","Tower Hamlets","Waltham Forest",
+"Wandsworth","Westminster"];
+
 let picked = null, acTimer = null;
 const acBox = $('ac');
 
@@ -313,36 +321,37 @@ $('f_address').addEventListener('input', e => {
 });
 
 async function suggest(q){
-  try {
-    const url = 'https://photon.komoot.io/api/?limit=6&lang=en&lat=51.5074&lon=-0.1278&q='
-      + encodeURIComponent(q + ' London');
-    const r = await fetch(url);
+  try{
+    const r = await fetch('https://photon.komoot.io/api/?limit=6&lang=en&lat=51.5074&lon=-0.1278&q='
+      + encodeURIComponent(q + ' London'));
     const j = await r.json();
-    const items = (j.features || []).filter(f => {
-      const [lon, lat] = f.geometry.coordinates;
-      return lat > 51.2 && lat < 51.8 && lon > -0.6 && lon < 0.4;
+    const items = (j.features||[]).filter(f => {
+      const c = f.geometry.coordinates;
+      return c[1]>51.2 && c[1]<51.8 && c[0]>-0.6 && c[0]<0.4;
     });
     if (!items.length){ acBox.classList.remove('on'); return; }
-    acBox.innerHTML = items.map((f, i) => {
+    acBox.innerHTML = items.map((f,i) => {
       const p = f.properties;
-      const line1 = [p.name, p.housenumber ? p.street + ' ' + p.housenumber : p.street]
+      const l1 = [p.name, p.housenumber ? p.street+' '+p.housenumber : p.street]
         .filter(Boolean).join(' · ');
-      const line2 = [p.district, p.city, p.postcode].filter(Boolean).join(', ');
-      return `<div data-i="${i}">${esc(line1 || p.street || p.city)}<small>${esc(line2)}</small></div>`;
+      const l2 = [p.district, p.city, p.postcode].filter(Boolean).join(', ');
+      return `<div data-i="${i}">${esc(l1 || p.street || p.city)}<small>${esc(l2)}</small></div>`;
     }).join('');
     acBox.classList.add('on');
-    acBox.querySelectorAll('div[data-i]').forEach(el => {
-      el.addEventListener('click', () => choose(items[+el.dataset.i]));
-    });
+    acBox.querySelectorAll('div[data-i]').forEach(el =>
+      el.addEventListener('click', () => choose(items[+el.dataset.i])));
   } catch { acBox.classList.remove('on'); }
 }
 
 function choose(f){
-  const p = f.properties, [lon, lat] = f.geometry.coordinates;
-  picked = { lat, lng: lon };
-  $('f_address').value = [p.name, p.street && p.housenumber ? p.street + ' ' + p.housenumber
-    : p.street, p.postcode].filter(Boolean).join(', ');
-  if (!$('f_area').value) $('f_area').value = p.district || p.suburb || p.city || '';
+  const p = f.properties, c = f.geometry.coordinates;
+  const dist = p.district || p.suburb || p.city || '';
+  const bor = BOROUGHS.find(b => b.toLowerCase() === String(p.county||'').toLowerCase())
+           || BOROUGHS.find(b => b.toLowerCase() === dist.toLowerCase()) || null;
+  picked = { lat:c[1], lng:c[0], borough:bor };
+  $('f_address').value = [p.name, p.housenumber ? p.street+' '+p.housenumber : p.street,
+    p.postcode].filter(Boolean).join(', ');
+  if (!$('f_area').value) $('f_area').value = dist;
   acBox.classList.remove('on');
   paintCoord();
 }
@@ -361,115 +370,170 @@ document.addEventListener('click', e => {
   if (!e.target.closest('.ac')) acBox.classList.remove('on');
 });
 
-// borough dropdown
-const bsel = $('f_borough');
-BOROUGHS.forEach(b => {
-  const o = document.createElement('option');
-  o.value = b; o.textContent = b; bsel.appendChild(o);
-});
-
-// ---------- auth ----------
+/* ---------------- auth ---------------- */
 $('sendLink').addEventListener('click', async () => {
   const email = $('mail').value.trim().toLowerCase();
-  if (!email) return msg($('loginMsg'), 'Enter your email first.', 'err');
+  if (!email) return msg($('loginMsg'),'Enter your email first.','err');
   if (!STAFF_EMAILS.includes(email))
-    return msg($('loginMsg'), 'That address is not a staff account.', 'err');
-
+    return msg($('loginMsg'),'That address is not a staff account.','err');
   $('sendLink').disabled = true;
-  const { error } = await sb.auth.signInWithOtp({
-    email,
-    options: { emailRedirectTo: 'https://languagepin.co.uk/staff.html' }
-  });
+  const { error } = await sb.auth.signInWithOtp({ email,
+    options:{ emailRedirectTo:'https://languagepin.co.uk/staff.html' }});
   $('sendLink').disabled = false;
   if (error) return msg($('loginMsg'), error.message, 'err');
-  msg($('loginMsg'), 'Link sent. Check your inbox on this device.', 'ok');
+  msg($('loginMsg'),'Link sent. Check your inbox on this device.','ok');
 });
-
 window.signOut = async () => { await sb.auth.signOut(); location.reload(); };
 
 async function route(){
-  const { data: { session } } = await sb.auth.getSession();
-  if (!session){
-    show($('login'), true); show($('app'), false); show($('denied'), false);
-    return;
-  }
-  // is this user staff?
-  const { data: profile } = await sb
-    .from('profiles').select('display_name, is_staff')
+  const { data:{ session } } = await sb.auth.getSession();
+  if (!session){ show($('login'),true); show($('app'),false); show($('denied'),false); return; }
+  const { data:p } = await sb.from('profiles').select('is_staff')
     .eq('id', session.user.id).maybeSingle();
-
-  if (!profile || !profile.is_staff){
-    show($('login'), false); show($('app'), false); show($('denied'), true);
-    return;
-  }
+  if (!p || !p.is_staff){ show($('login'),false); show($('app'),false); show($('denied'),true); return; }
   $('whoami').textContent = 'Signed in as ' + session.user.email;
-  show($('login'), false); show($('denied'), false); show($('app'), true);
+  show($('login'),false); show($('denied'),false); show($('app'),true);
   loadVenues();
 }
-
 sb.auth.onAuthStateChange(() => route());
 route();
 
-// ---------- add venue ----------
+/* ---------------- add / edit ---------------- */
+let editingId = null;
+let cache = {};
+
+function resetForm(){
+  editingId = null;
+  ['f_name','f_area','f_address','f_why','f_nfc'].forEach(id => $(id).value = '');
+  $('f_type').value = ''; $('f_ver').value = 'unverified';
+  picked = null; paintCoord(); setHours(null);
+  $('formTitle').textContent = 'Add a venue';
+  $('save').textContent = 'Add venue';
+  show($('cancelEdit'), false);
+  clearMsg($('saveMsg'));
+}
+$('cancelEdit').addEventListener('click', resetForm);
+
+window.editVenue = id => {
+  const v = cache[id]; if (!v) return;
+  editingId = id;
+  $('f_name').value = v.name || '';
+  $('f_type').value = v.venue_type || '';
+  $('f_area').value = v.area || '';
+  $('f_address').value = v.address || '';
+  $('f_why').value = v.why || '';
+  $('f_ver').value = v.verification || 'unverified';
+  $('f_nfc').value = v.nfc_tag_uid || '';
+  picked = (v.lat != null) ? { lat:v.lat, lng:v.lng, borough:v.borough } : null;
+  paintCoord(); setHours(v.best_hours);
+  $('formTitle').textContent = 'Editing: ' + v.name;
+  $('save').textContent = 'Save changes';
+  show($('cancelEdit'), true);
+  window.scrollTo({ top:0, behavior:'smooth' });
+};
+
 $('save').addEventListener('click', async () => {
   clearMsg($('saveMsg'));
-
   const name = $('f_name').value.trim();
-  if (!name) return msg($('saveMsg'), 'Name is required.', 'err');
-  if (!picked) return msg($('saveMsg'), 'Pick an address from the suggestions so we know where the pin goes.', 'err');
+  if (!name) return msg($('saveMsg'),'Name is required.','err');
+  if (!picked) return msg($('saveMsg'),'Pick an address from the suggestions.','err');
 
   const hours = readHours();
   const row = {
     name,
-    venue_type:   $('f_type').value    || null,
-    area:         $('f_area').value.trim()    || null,
-    borough:      $('f_borough').value || null,
-    address:      $('f_address').value.trim() || null,
+    venue_type: $('f_type').value || null,
+    area: $('f_area').value.trim() || null,
+    borough: picked.borough || null,
+    address: $('f_address').value.trim() || null,
     lat: picked.lat, lng: picked.lng,
-    best_hours:   hours,
-    best_time:    hoursText(hours),
-    why:          $('f_why').value.trim()     || null,
+    best_hours: hours, best_time: hoursText(hours),
+    why: $('f_why').value.trim() || null,
     verification: $('f_ver').value,
-    nfc_tag_uid:  $('f_nfc').value.trim()     || null,
-    is_active: true
+    nfc_tag_uid: $('f_nfc').value.trim() || null
   };
 
   $('save').disabled = true;
-  const { error } = await sb.from('venues').insert(row);
+  const res = editingId
+    ? await sb.from('venues').update(row).eq('id', editingId)
+    : await sb.from('venues').insert(Object.assign({}, row, { is_active:true }));
   $('save').disabled = false;
 
-  if (error) return msg($('saveMsg'), 'Not saved: ' + error.message, 'err');
-
-  msg($('saveMsg'), name + ' added to the map.', 'ok');
-  ['f_name','f_area','f_address','f_why','f_nfc'].forEach(id => $(id).value = '');
-  picked = null; paintCoord();
-  DAYS.forEach(([k]) => { $('ck_'+k).checked = false;
-    $('ck_'+k).closest('.day').classList.add('off'); });
+  if (res.error) return msg($('saveMsg'), res.error.message, 'err');
+  const wasEdit = !!editingId;
+  resetForm();
+  msg($('saveMsg'), name + (wasEdit ? ' updated.' : ' added to the map.'), 'ok');
   loadVenues();
 });
 
-// ---------- list ----------
+/* ---------------- remove / restore ---------------- */
+window.askRemove = id => {
+  const box = $('cf_'+id);
+  box.className = 'confirm';
+  box.innerHTML = `Take this venue off the map? It moves to "Removed venues" and you can put it back.
+    <div class="row">
+      <button class="danger" onclick="doRemove(${id})">Yes, remove</button>
+      <button class="ghost" onclick="cancelRemove(${id})">Keep it</button>
+    </div>`;
+};
+window.cancelRemove = id => { const b = $('cf_'+id); b.className=''; b.innerHTML=''; };
+
+window.doRemove = async id => {
+  const { error } = await sb.from('venues').update({ is_active:false }).eq('id', id);
+  if (error) return alert(error.message);
+  if (editingId === id) resetForm();
+  loadVenues();
+};
+window.restoreVenue = async id => {
+  const { error } = await sb.from('venues').update({ is_active:true }).eq('id', id);
+  if (error) return alert(error.message);
+  loadVenues();
+};
+
+$('toggleBin').addEventListener('click', () => {
+  const hidden = $('bin').classList.toggle('hide');
+  $('toggleBin').textContent = hidden ? 'show' : 'hide';
+});
+
+/* ---------------- list ---------------- */
+const LBL = { confirmed:'Confirmed', italian_staff:'Italian staff', unverified:'Unverified' };
+
 async function loadVenues(){
-  const { data, error } = await sb.from('venues')
-    .select('id,name,area,borough,verification')
-    .order('created_at', { ascending: false });
+  const { data, error } = await sb.from('venues').select('*')
+    .order('created_at', { ascending:false });
+  if (error){ $('list').innerHTML = '<div class="hint">'+esc(error.message)+'</div>'; return; }
 
-  const list = $('list');
-  if (error){ list.innerHTML = '<div class="hint">Could not load: ' + error.message + '</div>'; return; }
-  $('count').textContent = data.length;
-  if (!data.length){ list.innerHTML = '<div class="hint">No venues yet.</div>'; return; }
+  cache = {};
+  data.forEach(v => { cache[v.id] = v; });
+  const live = data.filter(v => v.is_active);
+  const gone = data.filter(v => !v.is_active);
 
-  const labels = { confirmed:'Confirmed', italian_staff:'Italian staff', unverified:'Unverified' };
-  list.innerHTML = data.map(v => `
+  $('count').textContent = live.length;
+  $('binCount').textContent = gone.length;
+  show($('binCard'), gone.length > 0);
+
+  $('list').innerHTML = live.length ? live.map(v => `
     <div class="v">
-      <span><b>${esc(v.name)}</b><small>${esc(v.area || v.borough || '—')}</small></span>
-      <span class="badge b-${v.verification}">${labels[v.verification] || v.verification}</span>
-    </div>`).join('');
-}
+      <div class="vtop">
+        <span><b>${esc(v.name)}</b>
+          <small>${esc(v.area || v.address || '—')}</small>
+          ${v.best_time ? `<small>${esc(v.best_time)}</small>` : ''}</span>
+        <span class="badge b-${v.verification}">${LBL[v.verification] || v.verification}</span>
+      </div>
+      <div class="acts">
+        <button class="ghost" onclick="editVenue(${v.id})">Edit</button>
+        <button class="danger" onclick="askRemove(${v.id})">Remove</button>
+      </div>
+      <div id="cf_${v.id}"></div>
+    </div>`).join('') : '<div class="hint">No venues yet.</div>';
 
-function esc(s){
-  return String(s).replace(/[&<>"']/g, c =>
-    ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  $('bin').innerHTML = gone.map(v => `
+    <div class="v">
+      <div class="vtop">
+        <span><b>${esc(v.name)}</b><small>${esc(v.area || v.address || '—')}</small></span>
+        <button class="ghost" style="margin:0;width:auto;padding:6px 13px;font-size:13px"
+          onclick="restoreVenue(${v.id})">Put back</button>
+      </div>
+    </div>`).join('');
 }
 </script>
 </body>
