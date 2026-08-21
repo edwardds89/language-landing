@@ -781,7 +781,7 @@ function openVenue(v){
   $('v_name').textContent = v.name;
   $('v_where').textContent = [v.area, v.borough].filter(Boolean).join(' · ') || 'London';
   const b = $('v_badge');
-  b.textContent = LABEL[v.verification] || v.verification;
+  b.textContent = LBL[v.verification] || v.verification;
   b.className = 'badge b-' + v.verification;
 
   const bits = [];
