@@ -25,24 +25,84 @@ html,body{margin:0;background:var(--bg);color:var(--ink);
   font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
   -webkit-font-smoothing:antialiased}
 .wrap{max-width:680px;margin:0 auto;padding:0 18px}
+.hidden{display:none !important}
+
+/* ---------- top bar ---------- */
+.topbar{display:flex;align-items:center;gap:10px;padding:22px 0 14px}
+.topbar .mark{height:32px;width:auto;display:block;flex:0 0 auto}
+.topbar .brand{font-size:18px;font-weight:700;letter-spacing:-.01em}
+.topbar .brand span{color:var(--accent)}
+.topbar .tag{font-size:12.5px;color:var(--muted);display:block;font-weight:400;
+  letter-spacing:0;margin-top:1px}
+.topbar .who{margin-left:auto;font-size:13px;color:var(--muted);text-align:right}
+.topbar .who b{display:block;color:var(--ink);font-size:14px;font-weight:600}
+.topbar .who button{background:none;border:0;color:var(--muted);font:inherit;
+  font-size:12px;text-decoration:underline;cursor:pointer;padding:0;margin-top:2px}
 
 /* ---------- hero ---------- */
-header{padding:26px 0 18px;display:flex;align-items:center;gap:10px}
-header .mark{height:32px;width:auto;display:block;flex:0 0 auto}
-header b{font-size:18px;letter-spacing:-.01em}
 h1{font-size:31px;line-height:1.15;margin:6px 0 12px;letter-spacing:-.02em;font-weight:800}
 h1 em{font-style:normal;color:var(--accent2)}
 .sub{font-size:17px;color:var(--muted);margin:0 0 20px;max-width:34em}
 .sub b{color:var(--ink);font-weight:600}
+.greet{font-size:26px;font-weight:800;letter-spacing:-.02em;margin:4px 0 6px}
+.greet em{font-style:normal;color:var(--accent2)}
+
+/* ---------- challenge banner ---------- */
+.chal{background:linear-gradient(135deg,rgba(243,136,8,.16),rgba(243,136,8,.05));
+  border:1px solid var(--accent);border-radius:14px;padding:15px 17px;margin-bottom:18px}
+.chal h3{margin:0 0 5px;font-size:16px;font-weight:750}
+.chal p{margin:0;font-size:14px;color:var(--muted);line-height:1.5}
+.chal .cd{display:flex;gap:10px;margin-top:12px}
+.chal .u{background:var(--bg);border:1px solid var(--line);border-radius:9px;
+  padding:7px 0;min-width:56px;text-align:center}
+.chal .u b{display:block;font-size:19px;font-weight:800;line-height:1.1}
+.chal .u span{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.chal .live{color:var(--ok);font-weight:700;font-size:14px;margin-top:10px}
+.chal a.more{color:var(--accent2);font-size:13px;text-decoration:underline;
+  cursor:pointer;display:inline-block;margin-top:10px}
+
+/* ---------- tabs ---------- */
+.tabs{display:flex;gap:10px;margin-bottom:18px}
+.tabs button{flex:1;padding:13px;border-radius:11px;border:1px solid var(--line);
+  background:transparent;color:var(--muted);font:600 15px/1 inherit;cursor:pointer}
+.tabs button.on{background:var(--accent);color:#052733;border-color:var(--accent);font-weight:700}
 
 /* ---------- map ---------- */
-#map{height:62vh;min-height:340px;border-radius:16px;border:1px solid var(--line);
+#map{height:58vh;min-height:320px;border-radius:16px;border:1px solid var(--line);
   background:var(--bg2);z-index:1}
 .maphint{font-size:13px;color:var(--muted);margin:10px 0 26px;display:flex;
   align-items:center;gap:7px}
 .dot{width:7px;height:7px;border-radius:99px;background:var(--accent);flex:0 0 auto}
 .leaflet-container{background:var(--bg2);font-family:inherit}
 .pinmark{width:34px;height:45px;display:block;filter:drop-shadow(0 2px 4px rgba(0,0,0,.45))}
+
+/* ---------- say-this list ---------- */
+.types{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.tcard{background:var(--card);border:1px solid var(--line);border-radius:13px;
+  padding:14px;cursor:pointer;text-align:left}
+.tcard b{display:block;font-size:16px;font-weight:700}
+.tcard span{display:block;font-size:13px;color:var(--muted);margin-top:2px}
+.tcard .em{font-size:22px;display:block;margin-bottom:6px}
+.back{background:transparent;border:0;color:var(--accent2);font:600 14px/1 inherit;
+  cursor:pointer;padding:8px 0;margin-bottom:8px}
+.crosslink{display:block;width:100%;margin:6px 0 22px;padding:13px;border-radius:11px;
+  background:transparent;border:1px solid var(--accent);color:var(--accent2);
+  font:600 14.5px/1 inherit;cursor:pointer;text-align:center}
+
+/* ---------- venue list ---------- */
+.filters{display:flex;gap:8px;overflow-x:auto;padding:2px 0 8px;margin-bottom:14px;
+  scrollbar-width:none}
+.filters::-webkit-scrollbar{display:none}
+.filters button{white-space:nowrap;padding:8px 14px;border-radius:99px;
+  border:1px solid var(--line);background:transparent;color:var(--muted);
+  font:600 13px/1 inherit;cursor:pointer;flex:0 0 auto}
+.filters button.on{background:var(--accent);color:#052733;border-color:var(--accent)}
+.vcard{background:var(--card);border:1px solid var(--line);border-radius:13px;
+  padding:14px 15px;margin-bottom:11px;cursor:pointer}
+.vcard .vh{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.vcard b{font-size:16px;font-weight:700}
+.vcard small{display:block;color:var(--muted);font-size:13px;margin-top:2px}
+.vcard .t{font-size:12.5px;color:var(--accent2);margin-top:7px}
 
 /* ---------- sheet ---------- */
 .scrim{position:fixed;inset:0;background:rgba(3,26,34,.72);z-index:900;
@@ -54,8 +114,7 @@ h1 em{font-style:normal;color:var(--accent2)}
   transform:translateY(102%);transition:transform .26s cubic-bezier(.2,.8,.2,1);
   padding:0 18px calc(28px + env(safe-area-inset-bottom))}
 .sheet.on{transform:translateY(0)}
-.grab{width:38px;height:4px;border-radius:99px;background:var(--line);
-  margin:10px auto 16px}
+.grab{width:38px;height:4px;border-radius:99px;background:var(--line);margin:10px auto 16px}
 .sheet .inner{max-width:640px;margin:0 auto}
 .close{position:absolute;top:14px;right:16px;background:transparent;border:0;
   color:var(--muted);font-size:26px;line-height:1;cursor:pointer;padding:4px 8px}
@@ -68,18 +127,26 @@ h2{font-size:22px;margin:0 0 4px;letter-spacing:-.01em;font-weight:750}
 .b-italian_staff{background:rgba(243,136,8,.16);color:var(--accent2)}
 .b-unverified{background:rgba(159,190,203,.14);color:var(--muted)}
 .meta{background:var(--bg);border:1px solid var(--line);border-radius:12px;
-  padding:13px 15px;margin-bottom:18px;font-size:14.5px}
+  padding:13px 15px;margin-bottom:16px;font-size:14.5px}
 .meta div+div{margin-top:9px}
 .meta span{color:var(--muted);display:block;font-size:11.5px;
   text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px}
-.go{display:flex;align-items:center;justify-content:center;gap:9px;
-  width:100%;padding:14px;margin-bottom:20px;border-radius:11px;
-  background:transparent;border:1px solid var(--accent);color:var(--accent2);
-  font:600 15.5px/1 inherit;text-decoration:none;cursor:pointer}
-.go:active{background:rgba(243,136,8,.12)}
-.go svg{width:17px;height:17px;flex:0 0 17px}
+.acts{display:flex;gap:9px;margin-bottom:18px}
+.go,.fav{display:flex;align-items:center;justify-content:center;gap:8px;
+  padding:13px;border-radius:11px;background:transparent;border:1px solid var(--accent);
+  color:var(--accent2);font:600 15px/1 inherit;text-decoration:none;cursor:pointer}
+.go{flex:1}
+.fav{flex:0 0 52px;font-size:18px}
+.fav.on{background:rgba(243,136,8,.18)}
+.go:active,.fav:active{background:rgba(243,136,8,.12)}
+.go svg{width:16px;height:16px;flex:0 0 16px}
+.checkin{width:100%;padding:14px;border-radius:11px;margin-bottom:18px;
+  font:700 15.5px/1 inherit;cursor:pointer;border:1px dashed var(--line);
+  background:transparent;color:var(--muted)}
+.checkin.live{border:0;background:var(--accent);color:#052733;border-style:solid}
+.checkin .sm{display:block;font-weight:400;font-size:12.5px;margin-top:5px;opacity:.85}
 
-/* ---------- gate ---------- */
+/* ---------- gate / auth ---------- */
 .gate{background:var(--bg);border:1px solid var(--accent);border-radius:14px;
   padding:18px;margin-bottom:20px}
 .gate h3{margin:0 0 6px;font-size:17px;font-weight:700}
@@ -90,6 +157,7 @@ input,select{width:100%;padding:13px;font-size:16px;font-family:inherit;
   background:var(--card);border:1px solid var(--line);border-radius:10px;color:var(--ink)}
 input:focus,select:focus{outline:2px solid var(--accent);border-color:transparent}
 .f+.f{margin-top:13px}
+#g_code{letter-spacing:.42em;font-size:22px;text-align:center;font-weight:700}
 .areawrap{position:relative}
 .arealist{position:absolute;left:0;right:0;top:calc(100% + 5px);z-index:60;
   background:var(--card);border:1px solid var(--line);border-radius:11px;
@@ -98,7 +166,6 @@ input:focus,select:focus{outline:2px solid var(--accent);border-color:transparen
 .arealist.on{display:block}
 .arealist div{padding:12px 14px;font-size:15px;cursor:pointer;border-bottom:1px solid var(--line)}
 .arealist div:last-child{border-bottom:0}
-.arealist div:hover{background:var(--bg2)}
 .optout{display:flex;gap:16px;flex-wrap:wrap;margin-top:11px}
 .optout button{width:auto;margin:0;padding:0;background:transparent;border:0;
   color:var(--muted);font:400 13.5px/1.4 inherit;text-decoration:underline;cursor:pointer}
@@ -113,6 +180,8 @@ button.cta{width:100%;margin-top:16px;padding:15px;font-size:16.5px;font-weight:
   border-radius:11px;cursor:pointer;letter-spacing:-.01em}
 button.cta:active{background:var(--accent2)}
 button.cta:disabled{opacity:.55}
+.linkbtn{background:none;border:0;color:var(--muted);font:400 13px/1.4 inherit;
+  text-decoration:underline;cursor:pointer;padding:0;margin-top:12px}
 .msg{margin-top:12px;font-size:14px;padding:11px 13px;border-radius:9px;display:none}
 .msg.show{display:block}
 .msg.ok{background:rgba(79,196,138,.13);color:var(--ok)}
@@ -132,7 +201,13 @@ button.cta:disabled{opacity:.55}
 .lex div{font-size:14px;padding:5px 0}
 .lex b{color:var(--ink);font-weight:600}
 .lex span{color:var(--muted)}
-.hidden{display:none}
+.teaser{background:var(--bg);border:1px dashed var(--accent);border-radius:12px;
+  padding:16px;margin:4px 0 20px;text-align:center}
+.teaser b{display:block;font-size:15px;margin-bottom:5px}
+.teaser span{font-size:13.5px;color:var(--muted);display:block;margin-bottom:13px}
+.teaser button{width:100%;padding:13px;border-radius:10px;border:0;background:var(--accent);
+  color:#052733;font:700 15px/1 inherit;cursor:pointer}
+
 footer{padding:34px 0 40px;font-size:13px;color:var(--muted);text-align:center}
 footer a{color:var(--muted)}
 </style>
@@ -140,24 +215,77 @@ footer a{color:var(--muted)}
 <body>
 
 <div class="wrap">
-  <header>
+
+  <div class="topbar">
     <svg class="mark" viewBox="0 0 24 31" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
       <path d="M12 .8C5.5.8.9 5.8.9 12.1c0 7.4 8 15.4 10.4 17.9a1 1 0 0 0 1.4 0c2.4-2.5 10.4-10.5 10.4-17.9C23.1 5.8 18.5.8 12 .8Z" fill="#F38808"/>
       <circle cx="12" cy="12.2" r="6.4" fill="#F5EFE0"/>
       <path d="M16.4 16.2c1.2 1 2 1.6 2.9 1.9.4.1.6-.3.35-.6-.7-.8-1.1-1.6-1.25-2.5Z" fill="#F5EFE0"/>
     </svg>
-    <b>LanguagePin</b>
-  </header>
+    <div class="brand">Language<span>Pin</span>
+      <span class="tag">Fluent starts at the door.</span></div>
+    <div class="who hidden" id="who">
+      <b id="whoName"></b>
+      <button id="signout">Sign out</button>
+    </div>
+  </div>
 
-  <h1>Speak Italian in <em>real places</em> in London.</h1>
-  <p class="sub">
-    A map of places where Italian actually gets spoken — and <b>exactly what to say
-    when you walk in</b>, and what they'll say back.
-  </p>
+  <!-- signed out hero -->
+  <div id="hero">
+    <h1>Speak Italian in <em>real places</em> in London.</h1>
+    <p class="sub">
+      A map of places where Italian actually gets spoken — and <b>exactly what to say
+      when you walk in</b>, and what they'll say back.
+    </p>
+  </div>
 
-  <div id="map"></div>
-  <p class="maphint"><span class="dot"></span>
-    <span id="hint">Loading the map…</span></p>
+  <!-- signed in hero -->
+  <div id="heroIn" class="hidden">
+    <p class="greet">Ciao <em id="greetName">!</em></p>
+    <p class="sub">Dove andiamo oggi?</p>
+  </div>
+
+  <!-- challenge banner -->
+  <div class="chal hidden" id="chal">
+    <h3 id="chalTitle">The October Challenge</h3>
+    <p id="chalBody"></p>
+    <div class="cd" id="chalCd"></div>
+    <a class="more" id="chalMore">How it works</a>
+  </div>
+
+  <!-- tabs, signed in only -->
+  <div class="tabs hidden" id="tabs">
+    <button data-v="go" class="on">Where to go</button>
+    <button data-v="say">Say this</button>
+  </div>
+
+  <!-- view: map -->
+  <div id="v_map">
+    <div id="map"></div>
+    <p class="maphint"><span class="dot"></span><span id="hint">Loading the map…</span></p>
+  </div>
+
+  <!-- view: say this -->
+  <div id="v_say" class="hidden">
+    <div id="typelist">
+      <p class="sub">Pick the kind of place you're going to. You'll get the exact
+        phrases you need there — nothing else.</p>
+      <div class="types" id="types"></div>
+    </div>
+    <div id="typedetail" class="hidden">
+      <button class="back" id="typeBack">← All places</button>
+      <h2 id="td_name"></h2>
+      <button class="crosslink" id="td_go"></button>
+      <div id="td_body"></div>
+    </div>
+  </div>
+
+  <!-- view: venue list -->
+  <div id="v_list" class="hidden">
+    <div class="filters" id="filters"></div>
+    <div id="venues"></div>
+  </div>
+
 </div>
 
 <footer>
@@ -171,47 +299,82 @@ footer a{color:var(--muted)}
   <button class="close" onclick="closeSheet()" aria-label="Close">&times;</button>
   <div class="grab"></div>
   <div class="inner">
-    <h2 id="v_name"></h2>
-    <p class="where" id="v_where"></p>
-    <span class="badge" id="v_badge"></span>
-    <div class="meta" id="v_meta"></div>
 
-    <a class="go" id="v_go" target="_blank" rel="noopener">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <polygon points="3 11 22 2 13 21 11 13 3 11"/>
-      </svg>
-      Take me there
-    </a>
+    <!-- venue detail -->
+    <div id="s_venue">
+      <h2 id="v_name"></h2>
+      <p class="where" id="v_where"></p>
+      <span class="badge" id="v_badge"></span>
+      <div class="meta" id="v_meta"></div>
 
-    <div class="gate" id="gate">
-      <h3>See what to say here</h3>
-      <p>Leave your email and every place on the map unlocks the phrases you'll
-         need — what to say, and what they'll say back.</p>
-      <div class="f">
-        <label for="g_mail">Email</label>
-        <input id="g_mail" type="email" inputmode="email" autocomplete="email"
-               placeholder="you@example.com">
+      <div class="acts">
+        <a class="go" id="v_go" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polygon points="3 11 22 2 13 21 11 13 3 11"/>
+          </svg>
+          Take me there
+        </a>
+        <button class="fav" id="v_fav" title="Save this place">☆</button>
       </div>
-      <div class="f areawrap">
-        <label for="g_area">We're adding places where learners actually are</label>
-        <input id="g_area" autocomplete="off" placeholder="Your area or nearest station">
-        <div class="arealist" id="arealist"></div>
-        <div class="chosen" id="chosen" style="display:none"></div>
-        <div class="optout">
-          <button type="button" id="opt_out">I'm outside London</button>
-          <button type="button" id="opt_skip">Not now — I just want the phrases</button>
+
+      <button class="checkin" id="v_checkin"></button>
+
+      <div class="gate hidden" id="gate">
+        <h3 id="gateTitle">Create your account</h3>
+        <p id="gateBody">Every place on the map unlocks the phrases you'll need —
+           what to say, and what they'll say back. Plus saved places and the
+           October Challenge.</p>
+
+        <div id="step1">
+          <div class="f">
+            <label for="g_name">Your name</label>
+            <input id="g_name" autocomplete="given-name" placeholder="Edoardo">
+          </div>
+          <div class="f">
+            <label for="g_mail">Email</label>
+            <input id="g_mail" type="email" inputmode="email" autocomplete="email"
+                   placeholder="you@example.com">
+          </div>
+          <div class="f areawrap">
+            <label for="g_area">We're adding places where learners actually are</label>
+            <input id="g_area" autocomplete="off" placeholder="Your area or nearest station">
+            <div class="arealist" id="arealist"></div>
+            <div class="chosen" id="chosen" style="display:none"></div>
+            <div class="optout">
+              <button type="button" id="opt_out">I'm outside London</button>
+              <button type="button" id="opt_skip">Not now — I just want the phrases</button>
+            </div>
+          </div>
+          <label class="consent">
+            <input type="checkbox" id="g_ok">
+            <span>Email me when new places are added. No spam, unsubscribe anytime.</span>
+          </label>
+          <button class="cta" id="g_send">Send me a code</button>
         </div>
+
+        <div id="step2" class="hidden">
+          <div class="f">
+            <label for="g_code">6-digit code — check your inbox</label>
+            <input id="g_code" inputmode="numeric" autocomplete="one-time-code"
+                   maxlength="6" placeholder="000000">
+          </div>
+          <button class="cta" id="g_verify">Verify and unlock</button>
+          <button class="linkbtn" id="g_again">Use a different email</button>
+        </div>
+
+        <div class="msg" id="g_msg"></div>
       </div>
-      <label class="consent">
-        <input type="checkbox" id="g_ok">
-        <span>Email me when new places are added. No spam, unsubscribe anytime.</span>
-      </label>
-      <button class="cta" id="g_go">Unlock the phrases</button>
-      <div class="msg" id="g_msg"></div>
+
+      <div id="phrases" class="hidden"></div>
     </div>
 
-    <div id="phrases" class="hidden"></div>
+    <!-- challenge explainer -->
+    <div id="s_chal" class="hidden">
+      <h2>The Challenge</h2>
+      <div id="chalDetail"></div>
+    </div>
+
   </div>
 </div>
 
@@ -222,6 +385,14 @@ const sb = createClient(
   'https://jsthwwsxbcianujrjfzt.supabase.co',
   'sb_publishable_9MytZ3jSqIo2QqL8h2573A_sW_vSGv2'
 );
+
+/* ================= CONFIG — change these, nothing else ================= */
+const COHORT          = 'TEST';        // TEST until launch day, then LP-LONDON-01
+const CHALLENGE_START = '2026-10-06';  // yyyy-mm-dd, Europe/London
+const CHALLENGE_WEEKS = 3;
+const CHALLENGE_GOAL  = 5;             // distinct days needed to win a lesson
+const FREE_PHRASES    = 3;             // phrases shown before creating an account
+/* ====================================================================== */
 
 /* ============ phrase content (from languagepin-saythis) ============ */
 const TYPES=[
@@ -591,8 +762,17 @@ const COMMON=[
 
 const AREAS=[["Soho (W1 · Westminster)","soho w1 westminster","Westminster"],["Mayfair (W1 · Westminster)","mayfair w1 westminster","Westminster"],["Marylebone (W1 · Westminster)","marylebone w1 westminster tube underground","Westminster"],["Fitzrovia (W1 · Westminster)","fitzrovia w1 westminster camden","Westminster"],["Westminster · Victoria (SW1)","westminster victoria pimlico sw1",null],["Bloomsbury (WC1 · Camden)","bloomsbury wc1 camden","Camden"],["Covent Garden (WC2 · Westminster)","covent garden wc2 westminster tube underground","Westminster"],["Holborn (WC1 · Camden)","holborn wc1 camden tube underground","Camden"],["City of London (EC1–EC4)","city of london ec1 ec2 ec3 ec4 bank moorgate",null],["Shoreditch (E1/E2 · Hackney)","shoreditch e1 e2 hackney","Hackney"],["Hackney Central (E8/E9)","hackney e8 e9 central",null],["Dalston (E8 · Hackney)","dalston e8 hackney","Hackney"],["Stoke Newington (N16 · Hackney)","stoke newington n16 hackney","Hackney"],["Whitechapel (E1 · Tower Hamlets)","whitechapel e1 tower hamlets tube underground","Tower Hamlets"],["Bethnal Green (E2 · Tower Hamlets)","bethnal green e2 tower hamlets tube underground","Tower Hamlets"],["Bow (E3 · Tower Hamlets)","bow e3 tower hamlets","Tower Hamlets"],["Canary Wharf (E14 · Tower Hamlets)","canary wharf e14 tower hamlets isle of dogs tube underground","Tower Hamlets"],["Stratford (E15 · Newham)","stratford e15 newham tube underground","Newham"],["East Ham / Plaistow (E6/E13 · Newham)","east ham plaistow e6 e13 newham","Newham"],["Walthamstow (E17 · Waltham Forest)","walthamstow e17 waltham forest","Waltham Forest"],["Leyton (E10 · Waltham Forest)","leyton e10 waltham forest tube underground","Waltham Forest"],["Barking & Dagenham (RM/IG)","barking dagenham rm ig",null],["Ilford / Redbridge (IG)","ilford redbridge ig",null],["Romford / Havering (RM)","romford havering rm",null],["Islington · Angel (N1)","islington angel n1",null],["Highbury (N5 · Islington)","highbury n5 islington","Islington"],["King's Cross (N1/WC1)","kings cross n1 wc1 camden islington",null],["Camden Town (NW1)","camden town nw1 tube underground",null],["Kentish Town (NW5 · Camden)","kentish town nw5 camden tube underground","Camden"],["Hampstead (NW3 · Camden)","hampstead nw3 camden tube underground","Camden"],["Belsize Park (NW3 · Camden)","belsize park nw3 camden tube underground","Camden"],["Primrose Hill (NW1 · Camden)","primrose hill nw1 camden","Camden"],["Finsbury Park (N4 · Haringey)","finsbury park n4 haringey tube underground","Haringey"],["Crouch End (N8 · Haringey)","crouch end n8 haringey","Haringey"],["Wood Green (N22 · Haringey)","wood green n22 haringey tube underground","Haringey"],["Tottenham (N17 · Haringey)","tottenham n17 haringey","Haringey"],["Enfield (EN)","enfield en",null],["Finchley (N3/N12 · Barnet)","finchley n3 n12 barnet","Barnet"],["Hendon (NW4 · Barnet)","hendon nw4 barnet","Barnet"],["Edgware (HA8 · Barnet)","edgware ha8 barnet tube underground","Barnet"],["Barnet (EN/NW)","barnet en nw",null],["Kilburn (NW6)","kilburn nw6 camden brent tube underground",null],["Willesden (NW10 · Brent)","willesden nw10 brent","Brent"],["Wembley (HA9 · Brent)","wembley ha9 brent","Brent"],["Harrow (HA)","harrow ha",null],["Uxbridge / Hillingdon (UB)","uxbridge hillingdon ub heathrow",null],["Notting Hill (W11 · K&C)","notting hill w11 kensington chelsea",null],["Kensington (W8/SW7 · K&C)","kensington w8 sw7 tube underground",null],["Chelsea (SW3 · K&C)","chelsea sw3 kensington",null],["Ladbroke Grove (W10 · K&C)","ladbroke grove w10 kensington tube underground",null],["Paddington (W2 · Westminster)","paddington w2 westminster tube underground","Westminster"],["Bayswater (W2 · Westminster)","bayswater w2 westminster tube underground","Westminster"],["Shepherd's Bush (W12 · H&F)","shepherds bush w12 hammersmith fulham tube underground",null],["Hammersmith (W6 · H&F)","hammersmith w6 fulham tube underground",null],["Fulham (SW6 · H&F)","fulham sw6 hammersmith",null],["Ealing (W5/W13)","ealing w5 w13",null],["Acton (W3 · Ealing)","acton w3 ealing","Ealing"],["Chiswick (W4 · Hounslow)","chiswick w4 hounslow","Hounslow"],["Hounslow (TW)","hounslow tw heathrow",null],["Richmond (TW9/TW10)","richmond tw9 tw10 tube underground",null],["Kingston upon Thames (KT)","kingston upon thames kt",null],["Brixton (SW9 · Lambeth)","brixton sw9 lambeth tube underground","Lambeth"],["Clapham (SW4)","clapham sw4 lambeth wandsworth",null],["Stockwell (SW8/SW9 · Lambeth)","stockwell sw8 sw9 lambeth tube underground","Lambeth"],["Vauxhall (SW8 · Lambeth)","vauxhall sw8 lambeth tube underground","Lambeth"],["Streatham (SW16 · Lambeth)","streatham sw16 lambeth","Lambeth"],["Battersea (SW11 · Wandsworth)","battersea sw11 wandsworth","Wandsworth"],["Wandsworth (SW18)","wandsworth sw18",null],["Tooting (SW17 · Wandsworth)","tooting sw17 wandsworth","Wandsworth"],["Balham (SW12 · Wandsworth)","balham sw12 wandsworth tube underground","Wandsworth"],["Putney (SW15 · Wandsworth)","putney sw15 wandsworth","Wandsworth"],["Wimbledon (SW19 · Merton)","wimbledon sw19 merton tube underground","Merton"],["Mitcham (CR4 · Merton)","mitcham cr4 merton","Merton"],["Sutton (SM)","sutton sm",null],["Croydon (CR)","croydon cr",null],["Bermondsey (SE1/SE16 · Southwark)","bermondsey se1 se16 southwark tube underground","Southwark"],["Borough · London Bridge (SE1)","borough london bridge se1 southwark",null],["Peckham (SE15 · Southwark)","peckham se15 southwark","Southwark"],["Camberwell (SE5 · Southwark)","camberwell se5 southwark","Southwark"],["Dulwich (SE21/SE22 · Southwark)","dulwich se21 se22 southwark","Southwark"],["Lewisham (SE13)","lewisham se13",null],["New Cross (SE14 · Lewisham)","new cross se14 lewisham","Lewisham"],["Deptford (SE8 · Lewisham)","deptford se8 lewisham","Lewisham"],["Greenwich (SE10)","greenwich se10",null],["Blackheath (SE3)","blackheath se3 greenwich lewisham",null],["Woolwich (SE18 · Greenwich)","woolwich se18 greenwich","Greenwich"],["Bexley (DA)","bexley da",null],["Bromley (BR)","bromley br",null],["Acton Town (W3 · Ealing)","acton town w3 ealing tube underground","Ealing"],["Aldgate (EC3 · City of London)","aldgate ec3 city of london tube underground","City of London"],["Aldgate East (E1 · Tower Hamlets)","aldgate east e1 tower hamlets tube underground","Tower Hamlets"],["Alperton (HA0 · Brent)","alperton ha0 brent tube underground","Brent"],["Amersham (HP6 · Buckinghamshire)","amersham hp6 buckinghamshire tube underground",null],["Angel (N1 · Islington)","angel n1 islington tube underground","Islington"],["Archway (N19 · Islington)","archway n19 islington tube underground","Islington"],["Arnos Grove (N11 · Enfield)","arnos grove n11 enfield tube underground","Enfield"],["Arsenal (N5 · Islington)","arsenal n5 islington tube underground","Islington"],["Baker Street (NW1 · Westminster)","baker street nw1 westminster tube underground","Westminster"],["Bank (EC3 · City of London)","bank ec3 city of london tube underground","City of London"],["Barbican (EC1 · City of London)","barbican ec1 city of london tube underground","City of London"],["Barking (IG11 · Barking & Dagenham)","barking ig11 barking and dagenham tube underground",null],["Barkingside (IG6 · Redbridge)","barkingside ig6 redbridge tube underground","Redbridge"],["Barons Court (W14 · Hammersmith & Fulham)","barons court w14 hammersmith and fulham tube underground",null],["Battersea Power Station (SW11 · Wandsworth)","battersea power station sw11 wandsworth tube underground","Wandsworth"],["Becontree (RM8 · Barking & Dagenham)","becontree rm8 barking and dagenham tube underground",null],["Blackfriars (EC4 · City of London)","blackfriars ec4 city of london tube underground","City of London"],["Blackhorse Road (E17 · Waltham Forest)","blackhorse road e17 waltham forest tube underground","Waltham Forest"],["Bond Street (W1 · Westminster)","bond street w1 westminster tube underground","Westminster"],["Borough (SE1 · Southwark)","borough se1 southwark tube underground","Southwark"],["Boston Manor (TW8 · Hounslow)","boston manor tw8 hounslow tube underground","Hounslow"],["Bounds Green (N11 · Haringey)","bounds green n11 haringey tube underground","Haringey"],["Bow Road (E3 · Tower Hamlets)","bow road e3 tower hamlets tube underground","Tower Hamlets"],["Brent Cross (NW4 · Barnet)","brent cross nw4 barnet tube underground","Barnet"],["Bromley-by-Bow (E3 · Tower Hamlets)","bromley-by-bow e3 tower hamlets tube underground","Tower Hamlets"],["Buckhurst Hill (IG9 · Epping Forest)","buckhurst hill ig9 epping forest tube underground",null],["Burnt Oak (HA8 · Barnet)","burnt oak ha8 barnet tube underground","Barnet"],["Caledonian Road (N7 · Islington)","caledonian road n7 islington tube underground","Islington"],["Canada Water (SE16 · Southwark)","canada water se16 southwark tube underground","Southwark"],["Canning Town (E16 · Newham)","canning town e16 newham tube underground","Newham"],["Cannon Street (EC4 · City of London)","cannon street ec4 city of london tube underground","City of London"],["Canons Park (HA8 · Harrow)","canons park ha8 harrow tube underground","Harrow"],["Chalfont & Latimer (HP7 · Chiltern)","chalfont and latimer hp7 chiltern tube underground",null],["Chalk Farm (NW1 · Camden)","chalk farm nw1 camden tube underground","Camden"],["Chancery Lane (WC2 · Camden)","chancery lane wc2 camden tube underground","Camden"],["Charing Cross (WC2 · Westminster)","charing cross wc2 westminster tube underground","Westminster"],["Chesham (HP5 · Chiltern)","chesham hp5 chiltern tube underground",null],["Chigwell (IG7 · Epping Forest)","chigwell ig7 epping forest tube underground",null],["Chiswick Park (W4 · Hounslow)","chiswick park w4 hounslow tube underground","Hounslow"],["Chorleywood (WD3 · Three Rivers)","chorleywood wd3 three rivers tube underground",null],["Clapham Common (SW4 · Lambeth)","clapham common sw4 lambeth tube underground","Lambeth"],["Clapham North (SW4 · Lambeth)","clapham north sw4 lambeth tube underground","Lambeth"],["Clapham South (SW4 · Wandsworth)","clapham south sw4 wandsworth tube underground","Wandsworth"],["Cockfosters (EN4 · Enfield)","cockfosters en4 enfield tube underground","Enfield"],["Colindale (NW9 · Barnet)","colindale nw9 barnet tube underground","Barnet"],["Colliers Wood (SW19 · Merton)","colliers wood sw19 merton tube underground","Merton"],["Croxley (WD3 · Three Rivers)","croxley wd3 three rivers tube underground",null],["Dagenham East (RM10 · Barking & Dagenham)","dagenham east rm10 barking and dagenham tube underground",null],["Dagenham Heathway (RM10 · Barking & Dagenham)","dagenham heathway rm10 barking and dagenham tube underground",null],["Debden (IG10 · Epping Forest)","debden ig10 epping forest tube underground",null],["Dollis Hill (NW2 · Brent)","dollis hill nw2 brent tube underground","Brent"],["Ealing Broadway (W5 · Ealing)","ealing broadway w5 ealing tube underground","Ealing"],["Ealing Common (W5 · Ealing)","ealing common w5 ealing tube underground","Ealing"],["Earl's Court (SW5 · Kensington & Chelsea)","earls court sw5 kensington and chelsea tube underground",null],["East Acton (W3 · Hammersmith & Fulham)","east acton w3 hammersmith and fulham tube underground",null],["Eastcote (HA5 · Hillingdon)","eastcote ha5 hillingdon tube underground","Hillingdon"],["East Finchley (N2 · Barnet)","east finchley n2 barnet tube underground","Barnet"],["East Ham (E6 · Newham)","east ham e6 newham tube underground","Newham"],["East Putney (SW15 · Wandsworth)","east putney sw15 wandsworth tube underground","Wandsworth"],["Edgware Road (NW1 · Westminster)","edgware road nw1 westminster tube underground","Westminster"],["Elephant & Castle (SE1 · Southwark)","elephant and castle se1 southwark tube underground","Southwark"],["Elm Park (RM12 · Havering)","elm park rm12 havering tube underground","Havering"],["Embankment (WC2 · Westminster)","embankment wc2 westminster tube underground","Westminster"],["Epping (CM16 · Epping Forest)","epping cm16 epping forest tube underground",null],["Euston (NW1 · Camden)","euston nw1 camden tube underground","Camden"],["Euston Square (NW1 · Camden)","euston square nw1 camden tube underground","Camden"],["Fairlop (IG6 · Redbridge)","fairlop ig6 redbridge tube underground","Redbridge"],["Farringdon (EC1 · Islington)","farringdon ec1 islington tube underground","Islington"],["Finchley Central (N3 · Barnet)","finchley central n3 barnet tube underground","Barnet"],["Finchley Road (NW3 · Camden)","finchley road nw3 camden tube underground","Camden"],["Fulham Broadway (SW6 · Hammersmith & Fulham)","fulham broadway sw6 hammersmith and fulham tube underground",null],["Gants Hill (IG2 · Redbridge)","gants hill ig2 redbridge tube underground","Redbridge"],["Gloucester Road (SW7 · Kensington & Chelsea)","gloucester road sw7 kensington and chelsea tube underground",null],["Golders Green (NW11 · Barnet)","golders green nw11 barnet tube underground","Barnet"],["Goldhawk Road (W12 · Hammersmith & Fulham)","goldhawk road w12 hammersmith and fulham tube underground",null],["Goodge Street (W1 · Camden)","goodge street w1 camden tube underground","Camden"],["Grange Hill (IG7 · Redbridge)","grange hill ig7 redbridge tube underground","Redbridge"],["Great Portland Street (NW1 · Westminster)","great portland street nw1 westminster tube underground","Westminster"],["Green Park (W1 · Westminster)","green park w1 westminster tube underground","Westminster"],["Greenford (UB6 · Ealing)","greenford ub6 ealing tube underground","Ealing"],["Gunnersbury (W4 · Hounslow)","gunnersbury w4 hounslow tube underground","Hounslow"],["Hainault (IG7 · Redbridge)","hainault ig7 redbridge tube underground","Redbridge"],["Hanger Lane (W5 · Ealing)","hanger lane w5 ealing tube underground","Ealing"],["Harlesden (NW10 · Brent)","harlesden nw10 brent tube underground","Brent"],["Harrow & Wealdstone (HA3 · Harrow)","harrow and wealdstone ha3 harrow tube underground","Harrow"],["Harrow-on-the-Hill (HA1 · Harrow)","harrow-on-the-hill ha1 harrow tube underground","Harrow"],["Hatton Cross (TW6 · Hounslow)","hatton cross tw6 hounslow tube underground","Hounslow"],["Heathrow Terminals 2 & 3 (TW6 · Hillingdon)","heathrow terminals 2 and 3 tw6 hillingdon tube underground","Hillingdon"],["Heathrow Terminal 4 (TW6 · Hillingdon)","heathrow terminal 4 tw6 hillingdon tube underground","Hillingdon"],["Heathrow Terminal 5 (TW6 · Hillingdon)","heathrow terminal 5 tw6 hillingdon tube underground","Hillingdon"],["Hendon Central (NW4 · Barnet)","hendon central nw4 barnet tube underground","Barnet"],["High Barnet (EN5 · Barnet)","high barnet en5 barnet tube underground","Barnet"],["Highbury & Islington (N5 · Islington)","highbury and islington n5 islington tube underground","Islington"],["Highgate (N6 · Haringey)","highgate n6 haringey tube underground","Haringey"],["High Street Kensington (W8 · Kensington & Chelsea)","high street kensington w8 kensington and chelsea tube underground",null],["Hillingdon (UB10 · Hillingdon)","hillingdon ub10 hillingdon tube underground","Hillingdon"],["Holland Park (W11 · Kensington & Chelsea)","holland park w11 kensington and chelsea tube underground",null],["Holloway Road (N7 · Islington)","holloway road n7 islington tube underground","Islington"],["Hornchurch (RM12 · Havering)","hornchurch rm12 havering tube underground","Havering"],["Hounslow Central (TW3 · Hounslow)","hounslow central tw3 hounslow tube underground","Hounslow"],["Hounslow East (TW3 · Hounslow)","hounslow east tw3 hounslow tube underground","Hounslow"],["Hounslow West (TW3 · Hounslow)","hounslow west tw3 hounslow tube underground","Hounslow"],["Hyde Park Corner (W1 · Westminster)","hyde park corner w1 westminster tube underground","Westminster"],["Ickenham (UB10 · Hillingdon)","ickenham ub10 hillingdon tube underground","Hillingdon"],["Kennington (SE11 · Lambeth)","kennington se11 lambeth tube underground","Lambeth"],["Kensal Green (NW10 · Brent)","kensal green nw10 brent tube underground","Brent"],["Kenton (HA3 · Harrow)","kenton ha3 harrow tube underground","Harrow"],["Kew Gardens (TW9 · Richmond)","kew gardens tw9 richmond tube underground",null],["Kilburn Park (NW6 · Westminster)","kilburn park nw6 westminster tube underground","Westminster"],["Kingsbury (NW9 · Brent)","kingsbury nw9 brent tube underground","Brent"],["King's Cross St Pancras (N1C · Camden)","kings cross st pancras n1c camden tube underground","Camden"],["Knightsbridge (SW1 · Kensington & Chelsea)","knightsbridge sw1 kensington and chelsea tube underground",null],["Lambeth North (SE1 · Lambeth)","lambeth north se1 lambeth tube underground","Lambeth"],["Lancaster Gate (W2 · Westminster)","lancaster gate w2 westminster tube underground","Westminster"],["Latimer Road (W10 · Kensington & Chelsea)","latimer road w10 kensington and chelsea tube underground",null],["Leicester Square (WC2 · Westminster)","leicester square wc2 westminster tube underground","Westminster"],["Leytonstone (E11 · Waltham Forest)","leytonstone e11 waltham forest tube underground","Waltham Forest"],["Liverpool Street (EC2 · City of London)","liverpool street ec2 city of london tube underground","City of London"],["London Bridge (SE1 · Southwark)","london bridge se1 southwark tube underground","Southwark"],["Loughton (IG10 · Epping Forest)","loughton ig10 epping forest tube underground",null],["Maida Vale (W9 · Westminster)","maida vale w9 westminster tube underground","Westminster"],["Manor House (N4 · Hackney)","manor house n4 hackney tube underground","Hackney"],["Mansion House (EC4 · City of London)","mansion house ec4 city of london tube underground","City of London"],["Marble Arch (W1 · Westminster)","marble arch w1 westminster tube underground","Westminster"],["Mile End (E1 · Tower Hamlets)","mile end e1 tower hamlets tube underground","Tower Hamlets"],["Mill Hill East (NW7 · Barnet)","mill hill east nw7 barnet tube underground","Barnet"],["Monument (EC3 · City of London)","monument ec3 city of london tube underground","City of London"],["Moorgate (EC2 · City of London)","moorgate ec2 city of london tube underground","City of London"],["Moor Park (HA6 · Three Rivers)","moor park ha6 three rivers tube underground",null],["Morden (SM4 · Merton)","morden sm4 merton tube underground","Merton"],["Mornington Crescent (NW1 · Camden)","mornington crescent nw1 camden tube underground","Camden"],["Neasden (NW10 · Brent)","neasden nw10 brent tube underground","Brent"],["Newbury Park (IG2 · Redbridge)","newbury park ig2 redbridge tube underground","Redbridge"],["Nine Elms (SW8 · Wandsworth)","nine elms sw8 wandsworth tube underground","Wandsworth"],["North Acton (W3 · Ealing)","north acton w3 ealing tube underground","Ealing"],["North Ealing (W5 · Ealing)","north ealing w5 ealing tube underground","Ealing"],["Northfields (W13 · Ealing)","northfields w13 ealing tube underground","Ealing"],["North Greenwich (SE10 · Greenwich)","north greenwich se10 greenwich tube underground","Greenwich"],["North Harrow (HA2 · Harrow)","north harrow ha2 harrow tube underground","Harrow"],["Northolt (UB5 · Ealing)","northolt ub5 ealing tube underground","Ealing"],["North Wembley (HA0 · Brent)","north wembley ha0 brent tube underground","Brent"],["Northwick Park (HA3 · Harrow)","northwick park ha3 harrow tube underground","Harrow"],["Northwood (HA6 · Hillingdon)","northwood ha6 hillingdon tube underground","Hillingdon"],["Northwood Hills (HA6 · Hillingdon)","northwood hills ha6 hillingdon tube underground","Hillingdon"],["Notting Hill Gate (W11 · Kensington & Chelsea)","notting hill gate w11 kensington and chelsea tube underground",null],["Oakwood (N14 · Enfield)","oakwood n14 enfield tube underground","Enfield"],["Old Street (EC1 · Islington)","old street ec1 islington tube underground","Islington"],["Osterley (TW7 · Hounslow)","osterley tw7 hounslow tube underground","Hounslow"],["Oval (SE11 · Lambeth)","oval se11 lambeth tube underground","Lambeth"],["Oxford Circus (W1 · Westminster)","oxford circus w1 westminster tube underground","Westminster"],["Park Royal (W5 · Ealing)","park royal w5 ealing tube underground","Ealing"],["Parsons Green (SW6 · Hammersmith & Fulham)","parsons green sw6 hammersmith and fulham tube underground",null],["Perivale (UB6 · Ealing)","perivale ub6 ealing tube underground","Ealing"],["Piccadilly Circus (W1 · Westminster)","piccadilly circus w1 westminster tube underground","Westminster"],["Pimlico (SW1 · Westminster)","pimlico sw1 westminster tube underground","Westminster"],["Pinner (HA5 · Harrow)","pinner ha5 harrow tube underground","Harrow"],["Plaistow (E13 · Newham)","plaistow e13 newham tube underground","Newham"],["Preston Road (HA9 · Brent)","preston road ha9 brent tube underground","Brent"],["Putney Bridge (SW6 · Hammersmith & Fulham)","putney bridge sw6 hammersmith and fulham tube underground",null],["Queen's Park (NW6 · Brent)","queens park nw6 brent tube underground","Brent"],["Queensbury (HA8 · Brent)","queensbury ha8 brent tube underground","Brent"],["Queensway (W2 · Westminster)","queensway w2 westminster tube underground","Westminster"],["Ravenscourt Park (W6 · Hammersmith & Fulham)","ravenscourt park w6 hammersmith and fulham tube underground",null],["Rayners Lane (HA5 · Harrow)","rayners lane ha5 harrow tube underground","Harrow"],["Redbridge (IG4 · Redbridge)","redbridge ig4 redbridge tube underground","Redbridge"],["Regent's Park (W1 · Westminster)","regents park w1 westminster tube underground","Westminster"],["Rickmansworth (WD3 · Three Rivers)","rickmansworth wd3 three rivers tube underground",null],["Roding Valley (IG9 · Epping Forest)","roding valley ig9 epping forest tube underground",null],["Royal Oak (W2 · Westminster)","royal oak w2 westminster tube underground","Westminster"],["Ruislip (HA4 · Hillingdon)","ruislip ha4 hillingdon tube underground","Hillingdon"],["Ruislip Gardens (HA4 · Hillingdon)","ruislip gardens ha4 hillingdon tube underground","Hillingdon"],["Ruislip Manor (HA4 · Hillingdon)","ruislip manor ha4 hillingdon tube underground","Hillingdon"],["Russell Square (WC1 · Camden)","russell square wc1 camden tube underground","Camden"],["St James's Park (SW1 · Westminster)","st jamess park sw1 westminster tube underground","Westminster"],["St John's Wood (NW8 · Westminster)","st johns wood nw8 westminster tube underground","Westminster"],["St Paul's (EC2 · City of London)","st pauls ec2 city of london tube underground","City of London"],["Seven Sisters (N15 · Haringey)","seven sisters n15 haringey tube underground","Haringey"],["Shepherd's Bush Market (W12 · Hammersmith & Fulham)","shepherds bush market w12 hammersmith and fulham tube underground",null],["Sloane Square (SW1 · Kensington & Chelsea)","sloane square sw1 kensington and chelsea tube underground",null],["Snaresbrook (E11 · Redbridge)","snaresbrook e11 redbridge tube underground","Redbridge"],["South Ealing (W5 · Ealing)","south ealing w5 ealing tube underground","Ealing"],["Southfields (SW18 · Wandsworth)","southfields sw18 wandsworth tube underground","Wandsworth"],["Southgate (N14 · Enfield)","southgate n14 enfield tube underground","Enfield"],["South Harrow (HA2 · Harrow)","south harrow ha2 harrow tube underground","Harrow"],["South Kensington (SW7 · Kensington & Chelsea)","south kensington sw7 kensington and chelsea tube underground",null],["South Kenton (HA9 · Brent)","south kenton ha9 brent tube underground","Brent"],["South Ruislip (HA4 · Hillingdon)","south ruislip ha4 hillingdon tube underground","Hillingdon"],["South Wimbledon (SW19 · Merton)","south wimbledon sw19 merton tube underground","Merton"],["South Woodford (E18 · Redbridge)","south woodford e18 redbridge tube underground","Redbridge"],["Southwark (SE1 · Southwark)","southwark se1 southwark tube underground","Southwark"],["Stamford Brook (W6 · Hammersmith & Fulham)","stamford brook w6 hammersmith and fulham tube underground",null],["Stanmore (HA7 · Harrow)","stanmore ha7 harrow tube underground","Harrow"],["Stepney Green (E1 · Tower Hamlets)","stepney green e1 tower hamlets tube underground","Tower Hamlets"],["Stonebridge Park (HA9 · Brent)","stonebridge park ha9 brent tube underground","Brent"],["Sudbury Hill (HA1 · Harrow)","sudbury hill ha1 harrow tube underground","Harrow"],["Sudbury Town (HA0 · Brent)","sudbury town ha0 brent tube underground","Brent"],["Swiss Cottage (NW3 · Camden)","swiss cottage nw3 camden tube underground","Camden"],["Temple (WC2 · Westminster)","temple wc2 westminster tube underground","Westminster"],["Theydon Bois (CM16 · Epping Forest)","theydon bois cm16 epping forest tube underground",null],["Tooting Bec (SW17 · Wandsworth)","tooting bec sw17 wandsworth tube underground","Wandsworth"],["Tooting Broadway (SW17 · Wandsworth)","tooting broadway sw17 wandsworth tube underground","Wandsworth"],["Tottenham Court Road (W1 · Camden)","tottenham court road w1 camden tube underground","Camden"],["Tottenham Hale (N17 · Haringey)","tottenham hale n17 haringey tube underground","Haringey"],["Totteridge & Whetstone (N20 · Barnet)","totteridge and whetstone n20 barnet tube underground","Barnet"],["Tower Hill (EC3 · Tower Hamlets)","tower hill ec3 tower hamlets tube underground","Tower Hamlets"],["Tufnell Park (N19 · Islington)","tufnell park n19 islington tube underground","Islington"],["Turnham Green (W4 · Hounslow)","turnham green w4 hounslow tube underground","Hounslow"],["Turnpike Lane (N8 · Haringey)","turnpike lane n8 haringey tube underground","Haringey"],["Upminster (RM14 · Havering)","upminster rm14 havering tube underground","Havering"],["Upminster Bridge (RM14 · Havering)","upminster bridge rm14 havering tube underground","Havering"],["Upney (IG11 · Barking & Dagenham)","upney ig11 barking and dagenham tube underground",null],["Upton Park (E13 · Newham)","upton park e13 newham tube underground","Newham"],["Uxbridge (UB8 · Hillingdon)","uxbridge ub8 hillingdon tube underground","Hillingdon"],["Victoria (SW1 · Westminster)","victoria sw1 westminster tube underground","Westminster"],["Walthamstow Central (E17 · Waltham Forest)","walthamstow central e17 waltham forest tube underground","Waltham Forest"],["Wanstead (E11 · Redbridge)","wanstead e11 redbridge tube underground","Redbridge"],["Warren Street (W1 · Camden)","warren street w1 camden tube underground","Camden"],["Warwick Avenue (W9 · Westminster)","warwick avenue w9 westminster tube underground","Westminster"],["Waterloo (SE1 · Lambeth)","waterloo se1 lambeth tube underground","Lambeth"],["Watford (WD17 · Watford)","watford wd17 watford tube underground",null],["Wembley Central (HA9 · Brent)","wembley central ha9 brent tube underground","Brent"],["Wembley Park (HA9 · Brent)","wembley park ha9 brent tube underground","Brent"],["West Acton (W3 · Ealing)","west acton w3 ealing tube underground","Ealing"],["Westbourne Park (W2 · Westminster)","westbourne park w2 westminster tube underground","Westminster"],["West Brompton (SW10 · Kensington & Chelsea)","west brompton sw10 kensington and chelsea tube underground",null],["West Finchley (N3 · Barnet)","west finchley n3 barnet tube underground","Barnet"],["West Ham (E15 · Newham)","west ham e15 newham tube underground","Newham"],["West Hampstead (NW6 · Camden)","west hampstead nw6 camden tube underground","Camden"],["West Harrow (HA1 · Harrow)","west harrow ha1 harrow tube underground","Harrow"],["West Kensington (W14 · Hammersmith & Fulham)","west kensington w14 hammersmith and fulham tube underground",null],["Westminster (SW1 · Westminster)","westminster sw1 westminster tube underground","Westminster"],["West Ruislip (HA4 · Hillingdon)","west ruislip ha4 hillingdon tube underground","Hillingdon"],["White City (W12 · Hammersmith & Fulham)","white city w12 hammersmith and fulham tube underground",null],["Willesden Green (NW2 · Brent)","willesden green nw2 brent tube underground","Brent"],["Willesden Junction (NW10 · Brent)","willesden junction nw10 brent tube underground","Brent"],["Wimbledon Park (SW19 · Wandsworth)","wimbledon park sw19 wandsworth tube underground","Wandsworth"],["Woodford (E18 · Redbridge)","woodford e18 redbridge tube underground","Redbridge"],["Woodside Park (N12 · Barnet)","woodside park n12 barnet tube underground","Barnet"],["Beckton (E6 · Newham)","beckton e6 newham dlr docklands","Newham"],["Beckton Park (E16 · Newham)","beckton park e16 newham dlr docklands","Newham"],["Blackwall (E14 · Tower Hamlets)","blackwall e14 tower hamlets dlr docklands","Tower Hamlets"],["Bow Church (E3 · Tower Hamlets)","bow church e3 tower hamlets dlr docklands","Tower Hamlets"],["Crossharbour (E14 · Tower Hamlets)","crossharbour e14 tower hamlets dlr docklands","Tower Hamlets"],["Custom House (E16 · Newham)","custom house e16 newham dlr docklands","Newham"],["Cutty Sark (SE10 · Greenwich)","cutty sark se10 greenwich dlr docklands","Greenwich"],["Cyprus (E16 · Newham)","cyprus e16 newham dlr docklands","Newham"],["Deptford Bridge (SE8 · Lewisham)","deptford bridge se8 lewisham dlr docklands","Lewisham"],["Devons Road (E3 · Tower Hamlets)","devons road e3 tower hamlets dlr docklands","Tower Hamlets"],["East India (E14 · Tower Hamlets)","east india e14 tower hamlets dlr docklands","Tower Hamlets"],["Elverson Road (SE8 · Lewisham)","elverson road se8 lewisham dlr docklands","Lewisham"],["Gallions Reach (E16 · Newham)","gallions reach e16 newham dlr docklands","Newham"],["Heron Quays (E14 · Tower Hamlets)","heron quays e14 tower hamlets dlr docklands","Tower Hamlets"],["Island Gardens (E14 · Tower Hamlets)","island gardens e14 tower hamlets dlr docklands","Tower Hamlets"],["King George V (E16 · Newham)","king george v e16 newham dlr docklands","Newham"],["Langdon Park (E14 · Tower Hamlets)","langdon park e14 tower hamlets dlr docklands","Tower Hamlets"],["Limehouse (E14 · Tower Hamlets)","limehouse e14 tower hamlets dlr docklands","Tower Hamlets"],["London City Airport (E16 · Newham)","london city airport e16 newham dlr docklands","Newham"],["Mudchute (E14 · Tower Hamlets)","mudchute e14 tower hamlets dlr docklands","Tower Hamlets"],["Pontoon Dock (E16 · Newham)","pontoon dock e16 newham dlr docklands","Newham"],["Poplar (E14 · Tower Hamlets)","poplar e14 tower hamlets dlr docklands","Tower Hamlets"],["Prince Regent (E16 · Newham)","prince regent e16 newham dlr docklands","Newham"],["Pudding Mill Lane (E15 · Newham)","pudding mill lane e15 newham dlr docklands","Newham"],["Royal Albert (E16 · Newham)","royal albert e16 newham dlr docklands","Newham"],["Royal Victoria (E16 · Newham)","royal victoria e16 newham dlr docklands","Newham"],["Shadwell (E1 · Tower Hamlets)","shadwell e1 tower hamlets dlr docklands","Tower Hamlets"],["South Quay (E14 · Tower Hamlets)","south quay e14 tower hamlets dlr docklands","Tower Hamlets"],["Star Lane (E15 · Newham)","star lane e15 newham dlr docklands","Newham"],["Stratford High Street (E15 · Newham)","stratford high street e15 newham dlr docklands","Newham"],["Stratford International (E20 · Newham)","stratford international e20 newham dlr docklands","Newham"],["Tower Gateway (EC3 · Tower Hamlets)","tower gateway ec3 tower hamlets dlr docklands","Tower Hamlets"],["West India Quay (E14 · Tower Hamlets)","west india quay e14 tower hamlets dlr docklands","Tower Hamlets"],["West Silvertown (E16 · Newham)","west silvertown e16 newham dlr docklands","Newham"],["Westferry (E14 · Tower Hamlets)","westferry e14 tower hamlets dlr docklands","Tower Hamlets"],["Woolwich Arsenal (SE18 · Greenwich)","woolwich arsenal se18 greenwich dlr docklands","Greenwich"],["Hackney Wick (E9 · Hackney)","hackney wick e9 hackney overground mildmay","Hackney"],["Homerton (E9 · Hackney)","homerton e9 hackney overground mildmay","Hackney"],["Dalston Junction (E8 · Hackney)","dalston junction e8 hackney overground mildmay windrush","Hackney"],["Haggerston (E8 · Hackney)","haggerston e8 hackney overground mildmay windrush","Hackney"],["Hoxton (N1 · Hackney)","hoxton n1 hackney overground mildmay windrush","Hackney"],["Shoreditch High Street (E1 · Tower Hamlets)","shoreditch high street e1 tower hamlets overground mildmay windrush","Tower Hamlets"],["Wapping (E1W · Tower Hamlets)","wapping e1w tower hamlets overground windrush","Tower Hamlets"],["Rotherhithe (SE16 · Southwark)","rotherhithe se16 southwark overground windrush","Southwark"],["Surrey Quays (SE16 · Southwark)","surrey quays se16 southwark overground windrush","Southwark"],["New Cross Gate (SE14 · Lewisham)","new cross gate se14 lewisham overground windrush","Lewisham"],["Brockley (SE4 · Lewisham)","brockley se4 lewisham overground windrush","Lewisham"],["Honor Oak Park (SE23 · Lewisham)","honor oak park se23 lewisham overground windrush","Lewisham"],["Forest Hill (SE23 · Lewisham)","forest hill se23 lewisham overground windrush","Lewisham"],["Sydenham (SE26 · Lewisham)","sydenham se26 lewisham overground windrush","Lewisham"],["Crystal Palace (SE19 · Bromley)","crystal palace se19 bromley overground windrush","Bromley"],["Penge West (SE20 · Bromley)","penge west se20 bromley overground windrush","Bromley"],["Anerley (SE20 · Bromley)","anerley se20 bromley overground windrush","Bromley"],["Norwood Junction (SE25 · Croydon)","norwood junction se25 croydon overground windrush","Croydon"],["West Croydon (CR0 · Croydon)","west croydon cr0 croydon overground windrush","Croydon"],["Camden Road (NW1 · Camden)","camden road nw1 camden overground mildmay","Camden"],["Caledonian Road & Barnsbury (N7 · Islington)","caledonian road and barnsbury n7 islington overground mildmay","Islington"],["Canonbury (N1 · Islington)","canonbury n1 islington overground mildmay weaver","Islington"],["Dalston Kingsland (E8 · Hackney)","dalston kingsland e8 hackney overground mildmay","Hackney"],["Brondesbury (NW6 · Brent)","brondesbury nw6 brent overground mildmay","Brent"],["Brondesbury Park (NW6 · Brent)","brondesbury park nw6 brent overground mildmay","Brent"],["Kensal Rise (NW6 · Brent)","kensal rise nw6 brent overground mildmay","Brent"],["Acton Central (W3 · Ealing)","acton central w3 ealing overground mildmay","Ealing"],["South Acton (W3 · Ealing)","south acton w3 ealing overground mildmay","Ealing"],["Imperial Wharf (SW6 · Hammersmith & Fulham)","imperial wharf sw6 hammersmith and fulham overground mildmay",null],["Clapham Junction (SW11 · Wandsworth)","clapham junction sw11 wandsworth overground mildmay","Wandsworth"],["Wandsworth Road (SW8 · Lambeth)","wandsworth road sw8 lambeth overground mildmay","Lambeth"],["Clapham High Street (SW4 · Lambeth)","clapham high street sw4 lambeth overground mildmay","Lambeth"],["Denmark Hill (SE5 · Southwark)","denmark hill se5 southwark overground mildmay","Southwark"],["Peckham Rye (SE15 · Southwark)","peckham rye se15 southwark overground mildmay windrush","Southwark"],["Queens Road Peckham (SE15 · Southwark)","queens road peckham se15 southwark overground windrush","Southwark"],["Gospel Oak (NW5 · Camden)","gospel oak nw5 camden overground suffragette","Camden"],["Upper Holloway (N19 · Islington)","upper holloway n19 islington overground suffragette","Islington"],["Crouch Hill (N4 · Haringey)","crouch hill n4 haringey overground suffragette","Haringey"],["Harringay Green Lanes (N4 · Haringey)","harringay green lanes n4 haringey overground suffragette","Haringey"],["South Tottenham (N15 · Haringey)","south tottenham n15 haringey overground suffragette","Haringey"],["Walthamstow Queens Road (E17 · Waltham Forest)","walthamstow queens road e17 waltham forest overground suffragette","Waltham Forest"],["Leyton Midland Road (E10 · Waltham Forest)","leyton midland road e10 waltham forest overground suffragette","Waltham Forest"],["Leytonstone High Road (E11 · Waltham Forest)","leytonstone high road e11 waltham forest overground suffragette","Waltham Forest"],["Wanstead Park (E7 · Newham)","wanstead park e7 newham overground suffragette","Newham"],["Woodgrange Park (E7 · Newham)","woodgrange park e7 newham overground suffragette","Newham"],["Barking Riverside (IG11 · Barking & Dagenham)","barking riverside ig11 barking and dagenham overground suffragette",null],["Cambridge Heath (E2 · Tower Hamlets)","cambridge heath e2 tower hamlets overground weaver","Tower Hamlets"],["London Fields (E8 · Hackney)","london fields e8 hackney overground weaver","Hackney"],["Hackney Downs (E8 · Hackney)","hackney downs e8 hackney overground weaver","Hackney"],["Rectory Road (N16 · Hackney)","rectory road n16 hackney overground weaver","Hackney"],["Stamford Hill (N16 · Hackney)","stamford hill n16 hackney overground weaver","Hackney"],["Bruce Grove (N17 · Haringey)","bruce grove n17 haringey overground weaver","Haringey"],["White Hart Lane (N17 · Haringey)","white hart lane n17 haringey overground weaver","Haringey"],["Silver Street (N18 · Enfield)","silver street n18 enfield overground weaver","Enfield"],["Edmonton Green (N9 · Enfield)","edmonton green n9 enfield overground weaver","Enfield"],["Southbury (EN1 · Enfield)","southbury en1 enfield overground weaver","Enfield"],["Turkey Street (EN1 · Enfield)","turkey street en1 enfield overground weaver","Enfield"],["Theobalds Grove (EN8 · Broxbourne)","theobalds grove en8 broxbourne overground weaver",null],["Cheshunt (EN8 · Broxbourne)","cheshunt en8 broxbourne overground weaver",null],["St James Street (E17 · Waltham Forest)","st james street e17 waltham forest overground weaver","Waltham Forest"],["Wood Street (E17 · Waltham Forest)","wood street e17 waltham forest overground weaver","Waltham Forest"],["Highams Park (E4 · Waltham Forest)","highams park e4 waltham forest overground weaver","Waltham Forest"],["Chingford (E4 · Waltham Forest)","chingford e4 waltham forest overground weaver","Waltham Forest"],["Bush Hill Park (EN1 · Enfield)","bush hill park en1 enfield overground weaver","Enfield"],["Enfield Town (EN2 · Enfield)","enfield town en2 enfield overground weaver","Enfield"],["South Hampstead (NW3 · Camden)","south hampstead nw3 camden overground lioness","Camden"],["Kilburn High Road (NW6 · Camden)","kilburn high road nw6 camden overground lioness","Camden"],["Headstone Lane (HA3 · Harrow)","headstone lane ha3 harrow overground lioness","Harrow"],["Hatch End (HA5 · Harrow)","hatch end ha5 harrow overground lioness","Harrow"],["Carpenders Park (WD19 · Three Rivers)","carpenders park wd19 three rivers overground lioness",null],["Bushey (WD23 · Watford)","bushey wd23 watford overground lioness",null],["Watford High Street (WD17 · Watford)","watford high street wd17 watford overground lioness",null],["Watford Junction (WD17 · Watford)","watford junction wd17 watford overground lioness",null],["Romford (RM1 · Havering)","romford rm1 havering overground liberty","Havering"],["Emerson Park (RM11 · Havering)","emerson park rm11 havering overground liberty","Havering"],["Acton Main Line (W3 · Ealing)","acton main line w3 ealing elizabeth line crossrail","Ealing"],["West Ealing (W13 · Ealing)","west ealing w13 ealing elizabeth line crossrail","Ealing"],["Hanwell (W7 · Ealing)","hanwell w7 ealing elizabeth line crossrail","Ealing"],["Southall (UB2 · Ealing)","southall ub2 ealing elizabeth line crossrail","Ealing"],["Hayes & Harlington (UB3 · Hillingdon)","hayes and harlington ub3 hillingdon elizabeth line crossrail","Hillingdon"],["West Drayton (UB7 · Hillingdon)","west drayton ub7 hillingdon elizabeth line crossrail","Hillingdon"],["Iver (SL0 · Buckinghamshire)","iver sl0 buckinghamshire elizabeth line crossrail",null],["Langley (SL3 · Buckinghamshire)","langley sl3 buckinghamshire elizabeth line crossrail",null],["Slough (SL1 · Slough)","slough sl1 slough elizabeth line crossrail",null],["Burnham (SL1 · Buckinghamshire)","burnham sl1 buckinghamshire elizabeth line crossrail",null],["Taplow (SL6 · Buckinghamshire)","taplow sl6 buckinghamshire elizabeth line crossrail",null],["Maidenhead (SL6 · Berkshire)","maidenhead sl6 berkshire elizabeth line crossrail",null],["Twyford (RG10 · Berkshire)","twyford rg10 berkshire elizabeth line crossrail",null],["Reading (RG1 · Berkshire)","reading rg1 berkshire elizabeth line crossrail",null],["Maryland (E15 · Newham)","maryland e15 newham elizabeth line crossrail","Newham"],["Forest Gate (E7 · Newham)","forest gate e7 newham elizabeth line crossrail","Newham"],["Manor Park (E12 · Newham)","manor park e12 newham elizabeth line crossrail","Newham"],["Ilford (IG1 · Redbridge)","ilford ig1 redbridge elizabeth line crossrail","Redbridge"],["Seven Kings (IG3 · Redbridge)","seven kings ig3 redbridge elizabeth line crossrail","Redbridge"],["Goodmayes (IG3 · Redbridge)","goodmayes ig3 redbridge elizabeth line crossrail","Redbridge"],["Chadwell Heath (RM6 · Redbridge)","chadwell heath rm6 redbridge elizabeth line crossrail","Redbridge"],["Gidea Park (RM2 · Havering)","gidea park rm2 havering elizabeth line crossrail","Havering"],["Harold Wood (RM3 · Havering)","harold wood rm3 havering elizabeth line crossrail","Havering"],["Brentwood (CM14 · Essex)","brentwood cm14 essex elizabeth line crossrail",null],["Shenfield (CM15 · Essex)","shenfield cm15 essex elizabeth line crossrail",null],["Abbey Wood (SE2 · Greenwich)","abbey wood se2 greenwich elizabeth line crossrail","Greenwich"]];
 
-/* ---- cohort switch: 'TEST' while you try things, 'LP-LONDON-01' when live ---- */
-const COHORT = 'TEST';
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g,
+  c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const show = (el, on) => el && el.classList.toggle('hidden', !on);
+const msg = (el, t, k) => { el.textContent = t; el.className = 'msg show ' + k; };
+const clearMsg = el => { el.className = 'msg'; };
+
+const state = {
+  user: null, name: '', venues: [], favs: new Set(),
+  view: 'go', filter: 'all', current: null, myDays: 0
+};
 
 /* ============ event tracking ============ */
 let SID = localStorage.getItem('lp_sid');
@@ -611,14 +791,6 @@ function ev(event, extra){
   } catch {}
 }
 
-/* ============ diagnostics ============ */
-const hint = document.getElementById('hint');
-const fail = m => { hint.textContent = m; hint.style.color = '#FF7B68'; };
-window.addEventListener('error', e => fail('Error: ' + (e.message || 'script failed')));
-window.addEventListener('unhandledrejection', e => fail('Error: ' + (e.reason?.message || e.reason)));
-if (typeof L === 'undefined') fail('Leaflet did not load — check your connection, or open the page over https, not as a local file.');
-
-/* ============ tracking ============ */
 const qs = new URLSearchParams(location.search);
 if (qs.has('utm_source') || qs.has('src')) {
   sessionStorage.setItem('lp_track', JSON.stringify({
@@ -629,26 +801,211 @@ if (qs.has('utm_source') || qs.has('src')) {
     source: qs.get('utm_source') || qs.get('src') || 'organic'
   }));
 }
-const track = () => JSON.parse(sessionStorage.getItem('lp_track') ||
-  '{"source":"organic"}');
-
+const track = () => JSON.parse(sessionStorage.getItem('lp_track') || '{"source":"organic"}');
 ev('page_view');
-let mapTouched = false;
 
-const BOROUGHS = ["Barking and Dagenham","Barnet","Bexley","Brent","Bromley","Camden",
-"City of London","Croydon","Ealing","Enfield","Greenwich","Hackney",
-"Hammersmith and Fulham","Haringey","Harrow","Havering","Hillingdon","Hounslow",
-"Islington","Kensington and Chelsea","Kingston upon Thames","Lambeth","Lewisham",
-"Merton","Newham","Redbridge","Richmond upon Thames","Southwark","Sutton",
-"Tower Hamlets","Waltham Forest","Wandsworth","Westminster"];
+/* ============ diagnostics ============ */
+const hint = $('hint');
+const fail = m => { if (hint){ hint.textContent = m; hint.style.color = '#FF7B68'; } };
+window.addEventListener('error', e => fail('Error: ' + (e.message || 'script failed')));
+window.addEventListener('unhandledrejection', e => fail('Error: ' + (e.reason?.message || e.reason)));
+if (typeof L === 'undefined') fail('Leaflet did not load — check your connection, or open the page over https, not as a local file.');
 
-const $ = id => document.getElementById(id);
-const esc = s => String(s ?? '').replace(/[&<>"']/g,
-  c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+/* ============ challenge clock ============ */
+const DAY = 86400000;
+function chalState(){
+  const start = new Date(CHALLENGE_START + 'T00:00:00Z').getTime();
+  const end   = start + CHALLENGE_WEEKS * 7 * DAY;
+  const now   = Date.now();
+  if (now < start) return { phase:'before', start, end, ms: start - now };
+  if (now < end)   return { phase:'live',   start, end,
+                            day: Math.floor((now - start) / DAY) + 1,
+                            total: CHALLENGE_WEEKS * 7 };
+  return { phase:'over', start, end };
+}
+const startLabel = () => new Date(CHALLENGE_START + 'T00:00:00Z')
+  .toLocaleDateString('en-GB', { day:'numeric', month:'long', timeZone:'UTC' });
 
-/* ---- area autocomplete (stations + neighbourhoods) ---- */
-let area = null;          // [label, borough]
-let intent = null;        // 'area' | 'outside_london' | 'phrases_only'
+function paintChallenge(){
+  const c = chalState(), box = $('chal');
+  if (!box) return;
+  show(box, c.phase !== 'over');
+  if (c.phase === 'over'){ return; }
+
+  if (c.phase === 'before'){
+    $('chalTitle').textContent = 'The Challenge starts ' + startLabel();
+    $('chalBody').textContent =
+      'Tap the LanguagePin tag on the counter each time you practise. Reach ' +
+      CHALLENGE_GOAL + ' different days in ' + CHALLENGE_WEEKS +
+      ' weeks and you win a live Italian lesson with a native teacher.';
+    const d = Math.floor(c.ms / DAY),
+          h = Math.floor(c.ms % DAY / 3600000),
+          m = Math.floor(c.ms % 3600000 / 60000);
+    $('chalCd').innerHTML =
+      [[d,'days'],[h,'hours'],[m,'min']]
+        .map(([v,l]) => `<div class="u"><b>${v}</b><span>${l}</span></div>`).join('');
+  } else {
+    $('chalTitle').textContent = 'The Challenge is live';
+    $('chalBody').textContent = 'Day ' + c.day + ' of ' + c.total + '. ' +
+      (state.user
+        ? 'You have ' + state.myDays + ' of ' + CHALLENGE_GOAL + ' days.'
+        : 'Create an account to start counting your days.');
+    $('chalCd').innerHTML = '';
+  }
+}
+setInterval(paintChallenge, 30000);
+
+function chalDetailHtml(){
+  const c = chalState();
+  return `
+    <p class="sub">${c.phase === 'before'
+      ? 'Starts ' + startLabel() + ' and runs for ' + CHALLENGE_WEEKS + ' weeks.'
+      : c.phase === 'live' ? 'Day ' + c.day + ' of ' + c.total + '.' : 'Finished.'}</p>
+    <div class="meta">
+      <div><span>How to take part</span>Walk into any place on the map, order in Italian,
+        then hold your phone to the LanguagePin tag on the counter.</div>
+      <div><span>What counts</span>Separate days, not taps. Four places in one afternoon
+        counts as one day — coming back tomorrow is what counts.</div>
+      <div><span>How to win</span>Reach ${CHALLENGE_GOAL} different days and you win a
+        30-minute live Italian lesson. Most days overall wins 90 minutes, second place 60.</div>
+      <div><span>Who can enter</span>Free, no purchase needed beyond whatever you choose
+        to order. Full terms on the challenge terms page.</div>
+    </div>`;
+}
+
+/* ============ auth ============ */
+async function loadProfile(user){
+  state.user = user;
+  state.name = (user.user_metadata && user.user_metadata.display_name) || '';
+  if (!state.name){
+    try{
+      const { data } = await sb.from('profiles').select('display_name')
+        .eq('id', user.id).maybeSingle();
+      if (data && data.display_name) state.name = data.display_name;
+    } catch {}
+  }
+  try{
+    const { data } = await sb.from('favourites').select('venue_id').eq('user_id', user.id);
+    state.favs = new Set((data || []).map(r => r.venue_id));
+  } catch { state.favs = new Set(); }
+  try{
+    const { data } = await sb.from('checkins').select('london_day').eq('user_id', user.id);
+    state.myDays = new Set((data || []).map(r => r.london_day)).size;
+  } catch { state.myDays = 0; }
+}
+
+function paintAuth(){
+  const on = !!state.user;
+  show($('who'), on);
+  show($('tabs'), on);
+  show($('hero'), !on);
+  show($('heroIn'), on);
+  if (on){
+    $('whoName').textContent = state.name || 'Signed in';
+    $('greetName').textContent = (state.name || 'there') + '!';
+  }
+  paintChallenge();
+}
+
+async function route(){
+  const { data:{ session } } = await sb.auth.getSession();
+  if (session && session.user) await loadProfile(session.user);
+  else { state.user = null; state.favs = new Set(); state.myDays = 0; }
+  paintAuth();
+  renderView();
+  if (state.current) renderSheet();
+}
+sb.auth.onAuthStateChange(() => route());
+
+$('signout').addEventListener('click', async () => {
+  await sb.auth.signOut();
+  location.reload();
+});
+
+/* ---- OTP sign-in ---- */
+let pendingEmail = null;
+
+$('g_send').addEventListener('click', async () => {
+  const m = $('g_msg');
+  clearMsg(m);
+  const name  = $('g_name').value.trim();
+  const email = $('g_mail').value.trim().toLowerCase();
+  if (!name) return msg(m, 'Tell us your name first.', 'err');
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(email))
+    return msg(m, 'Please enter a valid email.', 'err');
+
+  ev('email_submit');
+  $('g_send').disabled = true;
+  const { error } = await sb.auth.signInWithOtp({
+    email,
+    options: { shouldCreateUser: true, data: { display_name: name } }
+  });
+  $('g_send').disabled = false;
+  if (error) return msg(m, error.message, 'err');
+
+  pendingEmail = email;
+  state.name = name;
+
+  // keep the smoke-test lead row, with the session id so behaviour can be joined later
+  const t = track();
+  try{
+    await sb.from('smoke_leads').insert({
+      email, cohort: COHORT, session_id: SID,
+      borough: area ? area[2] : null,
+      area_label: area ? area[0] : null,
+      intent: intent,
+      consent: $('g_ok').checked,
+      source: t.source || 'organic',
+      utm_source: t.utm_source, utm_medium: t.utm_medium,
+      utm_campaign: t.utm_campaign, utm_content: t.utm_content
+    });
+  } catch {}
+
+  show($('step1'), false);
+  show($('step2'), true);
+  msg(m, 'Code sent to ' + email + '. It expires in a few minutes.', 'ok');
+  $('g_code').focus();
+});
+
+$('g_again').addEventListener('click', () => {
+  pendingEmail = null;
+  show($('step2'), false);
+  show($('step1'), true);
+  clearMsg($('g_msg'));
+});
+
+$('g_verify').addEventListener('click', async () => {
+  const m = $('g_msg');
+  const token = $('g_code').value.replace(/\D/g, '');
+  if (token.length !== 6) return msg(m, 'The code is 6 digits.', 'err');
+  $('g_verify').disabled = true;
+  const { data, error } = await sb.auth.verifyOtp({
+    email: pendingEmail, token, type: 'email'
+  });
+  $('g_verify').disabled = false;
+  if (error) return msg(m, error.message, 'err');
+
+  clearMsg(m);
+  ev('email_ok', { meta: { intent: intent, area: area ? area[0] : null } });
+
+  if (data && data.user && state.name){
+    try{ await sb.from('profiles')
+      .upsert({ id: data.user.id, display_name: state.name }); } catch {}
+  }
+  show($('step1'), true);
+  show($('step2'), false);
+  await route();
+  $('sheet').scrollTop = 0;
+});
+
+$('g_code').addEventListener('input', e => {
+  e.target.value = e.target.value.replace(/\D/g, '').slice(0, 6);
+  if (e.target.value.length === 6) $('g_verify').click();
+});
+
+/* ============ area autocomplete ============ */
+let area = null;      // [label, haystack, borough]
+let intent = null;    // 'area' | 'outside_london' | 'phrases_only'
 const alist = $('arealist');
 
 function paintChosen(){
@@ -698,13 +1055,13 @@ function optOut(id, value){
 }
 optOut('opt_out', 'outside_london');
 optOut('opt_skip', 'phrases_only');
-
-const unlocked = () => localStorage.getItem('lp_unlocked') === '1';
+paintChosen();
 
 /* ============ map ============ */
 const map = L.map('map', { zoomControl: false, attributionControl: true })
   .setView([51.5100, -0.1180], 12);
 L.control.zoom({ position: 'bottomright' }).addTo(map);
+let mapTouched = false;
 map.on('movestart zoomstart', () => {
   if (!mapTouched){ mapTouched = true; ev('map_touch'); }
 });
@@ -737,13 +1094,12 @@ function pinSvg(type){
     <g transform="translate(8.6 8.6) scale(0.84)" fill="#053F52" color="#FFFFFF">${g}</g>
   </svg>`;
 }
-
 const iconFor = type => L.divIcon({
   className: '', iconSize: [34, 45], iconAnchor: [17, 45], popupAnchor: [0, -40],
   html: pinSvg(type)
 });
 
-let current = null;
+const typeName = id => (TYPES.find(t => t.id === id) || {}).en || 'Place';
 
 async function loadVenues(){
   const { data, error } = await sb.from('venues')
@@ -751,69 +1107,78 @@ async function loadVenues(){
     .eq('is_active', true);
 
   if (error){ fail('Map data error: ' + error.message); return; }
-  if (!data.length){
+  state.venues = data || [];
+  if (!state.venues.length){
     $('hint').textContent = 'The first places are being added right now — check back shortly.';
+    renderList();
     return;
   }
   const pts = [];
-  data.forEach(v => {
+  state.venues.forEach(v => {
     if (v.lat == null || v.lng == null) return;
-    L.marker([v.lat, v.lng], { icon: iconFor(v.venue_type) }).addTo(map).on('click', () => openVenue(v));
+    L.marker([v.lat, v.lng], { icon: iconFor(v.venue_type) })
+      .addTo(map).on('click', () => openVenue(v));
     pts.push([v.lat, v.lng]);
   });
   if (pts.length) map.fitBounds(pts, { padding: [50, 50], maxZoom: 14 });
-  $('hint').textContent = data.length + ' places mapped. Tap a pin.';
-}
-loadVenues();
-
-/* ============ sheet ============ */
-const LBL = { confirmed:'Italian spoken · confirmed',
-                italian_staff:'Italian staff reported',
-                unverified:'Not verified yet' };
-
-window.closeSheet = () => {
-  $('sheet').classList.remove('on');
-  $('scrim').classList.remove('on');
-};
-
-function openVenue(v){
-  current = v;
-  $('v_name').textContent = v.name;
-  $('v_where').textContent = [v.area, v.borough].filter(Boolean).join(' · ') || 'London';
-  const b = $('v_badge');
-  b.textContent = LBL[v.verification] || v.verification;
-  b.className = 'badge b-' + v.verification;
-
-  const bits = [];
-  if (v.address)   bits.push(`<div><span>Address</span>${esc(v.address)}</div>`);
-  if (v.best_time) bits.push(`<div><span>Best time to go</span>${esc(v.best_time)}</div>`);
-  if (v.why)       bits.push(`<div><span>Why here</span>${esc(v.why)}</div>`);
-  $('v_meta').innerHTML = bits.join('') ||
-    '<div><span>Address</span>Coming soon</div>';
-
-  const dest = encodeURIComponent(v.lat + ',' + v.lng);
-  $('v_go').href = 'https://www.google.com/maps/dir/?api=1&destination=' + dest +
-    '&travelmode=transit';
-  $('v_go').onclick = () => ev('directions', { venue_id: v.id });
-
-  ev('pin_click', { venue_id: v.id });
-  if (!unlocked()) ev('gate_shown', { venue_id: v.id });
-
-  render();
-  $('sheet').classList.add('on');
-  $('scrim').classList.add('on');
+  $('hint').textContent = state.venues.length + ' places mapped. Tap a pin.';
+  renderFilters();
+  renderList();
 }
 
-function render(){
-  if (!unlocked()){
-    $('gate').classList.remove('hidden');
-    $('phrases').classList.add('hidden');
-    return;
-  }
-  $('gate').classList.add('hidden');
-  $('phrases').classList.remove('hidden');
+/* ============ venue list ============ */
+function renderFilters(){
+  const used = [...new Set(state.venues.map(v => v.venue_type).filter(Boolean))];
+  $('filters').innerHTML =
+    [['all', 'All places']].concat(used.map(t => [t, typeName(t)]))
+      .map(([k, l]) => `<button data-f="${esc(k)}"${k === state.filter ? ' class="on"' : ''}>${esc(l)}</button>`)
+      .join('');
+  $('filters').querySelectorAll('button').forEach(b =>
+    b.addEventListener('click', () => { state.filter = b.dataset.f; renderFilters(); renderList(); }));
+}
 
-  const t = TYPES.find(x => x.id === (current.venue_type || 'bar')) || TYPES[0];
+function renderList(){
+  const list = state.filter === 'all'
+    ? state.venues
+    : state.venues.filter(v => v.venue_type === state.filter);
+  $('venues').innerHTML = list.length ? list.map(v => `
+    <div class="vcard" data-v="${v.id}">
+      <div class="vh">
+        <span><b>${esc(v.name)}</b>
+          <small>${esc([v.area, v.borough].filter(Boolean).join(' · ') || 'London')}</small></span>
+        <span>${state.favs.has(v.id) ? '★' : ''}</span>
+      </div>
+      ${v.best_time ? `<div class="t">${esc(v.best_time)}</div>` : ''}
+    </div>`).join('')
+    : '<p class="sub">No places of this kind yet. More get added as we verify them.</p>';
+  $('venues').querySelectorAll('.vcard').forEach(el =>
+    el.addEventListener('click', () => {
+      const v = state.venues.find(x => String(x.id) === el.dataset.v);
+      if (v) openVenue(v);
+    }));
+}
+
+/* ============ say this ============ */
+function renderTypes(){
+  $('types').innerHTML = TYPES.map(t => `
+    <button class="tcard" data-t="${esc(t.id)}">
+      <span class="em">${t.em || ''}</span>
+      <b>${esc(t.en)}</b><span>${esc(t.it)}</span>
+    </button>`).join('');
+  $('types').querySelectorAll('.tcard').forEach(b =>
+    b.addEventListener('click', () => openType(b.dataset.t)));
+}
+
+function grpHtml(g, limit){
+  const ps = limit ? g.p.slice(0, limit) : g.p;
+  return `<div class="grp"><h4>${esc(g.n)}</h4>` + ps.map(p =>
+    `<div class="p"><div class="it">${esc(p.it)}</div>
+     <div class="en">${esc(p.en)}</div>` +
+    (p.note ? `<div class="note">${esc(p.note)}</div>` : '') +
+    `</div>`).join('') + `</div>`;
+}
+
+function typeHtml(t){
   let html = '';
   t.groups.forEach(g => { html += grpHtml(g); });
   if (t.lex && t.lex.length){
@@ -822,56 +1187,188 @@ function render(){
       '</div>';
   }
   COMMON.forEach(g => { html += grpHtml(g); });
-  $('phrases').innerHTML = html;
+  return html;
 }
 
-function grpHtml(g){
-  return `<div class="grp"><h4>${esc(g.n)}</h4>` + g.p.map(p =>
-    `<div class="p"><div class="it">${esc(p.it)}</div>
-     <div class="en">${esc(p.en)}</div>` +
-    (p.note ? `<div class="note">${esc(p.note)}</div>` : '') +
-    `</div>`).join('') + `</div>`;
+function openType(id){
+  const t = TYPES.find(x => x.id === id) || TYPES[0];
+  $('td_name').textContent = t.en + ' · ' + t.it;
+  $('td_body').innerHTML = typeHtml(t);
+  const n = state.venues.filter(v => v.venue_type === t.id).length;
+  $('td_go').textContent = n
+    ? (n === 1 ? 'See the one place on the map →' : `See the ${n} places on the map →`)
+    : 'No places of this kind on the map yet';
+  $('td_go').disabled = !n;
+  $('td_go').onclick = () => { if (!n) return;
+    state.filter = t.id; setView('go'); renderFilters(); renderList();
+    $('v_list').scrollIntoView({ behavior: 'smooth' }); };
+  show($('typelist'), false);
+  show($('typedetail'), true);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+$('typeBack').addEventListener('click', () => {
+  show($('typedetail'), false); show($('typelist'), true);
+});
+
+/* ============ views ============ */
+function setView(v){
+  state.view = v;
+  renderView();
+  $('tabs').querySelectorAll('button').forEach(b =>
+    b.classList.toggle('on', b.dataset.v === v));
+}
+function renderView(){
+  const signedIn = !!state.user;
+  const say = signedIn && state.view === 'say';
+  show($('v_map'),  !say);
+  show($('v_list'), !say);
+  show($('v_say'),  say);
+  if (say && !$('types').children.length) renderTypes();
+  if (!say) setTimeout(() => map.invalidateSize(), 60);
+}
+$('tabs').querySelectorAll('button').forEach(b =>
+  b.addEventListener('click', () => setView(b.dataset.v)));
+
+/* ============ sheet ============ */
+const LBL = { confirmed:'Italian spoken · confirmed',
+              italian_staff:'Italian staff reported',
+              unverified:'Not verified yet' };
+
+window.closeSheet = () => {
+  $('sheet').classList.remove('on');
+  $('scrim').classList.remove('on');
+};
+
+function openVenue(v){
+  state.current = v;
+  show($('s_chal'), false);
+  show($('s_venue'), true);
+  renderSheet();
+  ev('pin_click', { venue_id: v.id });
+  if (!state.user) ev('gate_shown', { venue_id: v.id });
+  $('sheet').classList.add('on');
+  $('scrim').classList.add('on');
+  $('sheet').scrollTop = 0;
 }
 
-/* ============ gate ============ */
-$('g_go').addEventListener('click', async () => {
-  const m = $('g_msg');
-  const email = $('g_mail').value.trim().toLowerCase();
+function renderSheet(){
+  const v = state.current;
+  if (!v) return;
+  $('v_name').textContent = v.name;
+  $('v_where').textContent = [v.area, v.borough].filter(Boolean).join(' · ') || 'London';
+  const b = $('v_badge');
+  b.textContent = LBL[v.verification] || v.verification || '';
+  b.className = 'badge b-' + (v.verification || 'unverified');
 
-  const okMail = /^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(email);
-  if (!okMail){ m.className = 'msg show err'; m.textContent = 'Please enter a valid email.'; return; }
+  const bits = [];
+  if (v.address)   bits.push(`<div><span>Address</span>${esc(v.address)}</div>`);
+  if (v.best_time) bits.push(`<div><span>Best time to go</span>${esc(v.best_time)}</div>`);
+  if (v.why)       bits.push(`<div><span>Why here</span>${esc(v.why)}</div>`);
+  $('v_meta').innerHTML = bits.join('') || '<div><span>Address</span>Coming soon</div>';
 
-  ev('email_submit');
-  $('g_go').disabled = true;
-  const t = track();
-  const { error } = await sb.from('smoke_leads').insert({
-    email, cohort: COHORT,
-    borough: area ? area[2] : null,
-    area_label: area ? area[0] : null,
-    intent: intent,
-    consent: $('g_ok').checked,
-    source: t.source || 'organic',
-    utm_source: t.utm_source, utm_medium: t.utm_medium,
-    utm_campaign: t.utm_campaign, utm_content: t.utm_content
-  });
-  $('g_go').disabled = false;
+  const dest = encodeURIComponent(v.lat + ',' + v.lng);
+  $('v_go').href = 'https://www.google.com/maps/dir/?api=1&destination=' + dest +
+    '&travelmode=transit';
+  $('v_go').onclick = () => ev('directions', { venue_id: v.id });
 
-  // duplicate email = already a lead: unlock anyway, don't punish them
-  const dup = error && (error.code === '23505' ||
-    /duplicate|already exists/i.test(error.message || ''));
-  if (error && !dup){
-    console.error('signup failed', error);
-    m.className = 'msg show err';
-    m.textContent = (error.message || 'Unknown error') +
-      (error.code ? ' [' + error.code + ']' : '') +
-      (error.hint ? ' — ' + error.hint : '');
+  paintFav();
+  paintCheckin();
+  paintPhrases();
+}
+
+/* ---- favourite ---- */
+function paintFav(){
+  const btn = $('v_fav'), v = state.current;
+  const on = state.user && state.favs.has(v.id);
+  btn.textContent = on ? '★' : '☆';
+  btn.classList.toggle('on', !!on);
+  btn.onclick = async () => {
+    if (!state.user){ jumpToGate(); return; }
+    if (state.favs.has(v.id)){
+      state.favs.delete(v.id);
+      try{ await sb.from('favourites').delete()
+        .eq('user_id', state.user.id).eq('venue_id', v.id); } catch {}
+    } else {
+      state.favs.add(v.id);
+      ev('favourite', { venue_id: v.id });
+      try{ await sb.from('favourites')
+        .insert({ user_id: state.user.id, venue_id: v.id }); } catch {}
+    }
+    paintFav(); renderList();
+  };
+}
+
+/* ---- check in ---- */
+function paintCheckin(){
+  const btn = $('v_checkin'), c = chalState();
+  btn.className = 'checkin';
+  if (!state.user){
+    btn.innerHTML = 'Check in here<span class="sm">Create an account to take part</span>';
+    btn.onclick = () => { ev('checkin_intent', { venue_id: state.current.id }); jumpToGate(); };
     return;
   }
-  ev('email_ok', { meta: { intent: intent, area: area ? area[0] : null } });
-  localStorage.setItem('lp_unlocked', '1');
-  render();
+  if (c.phase === 'before'){
+    btn.innerHTML = 'Check in here<span class="sm">Opens ' + startLabel() +
+      ', when the tags go up</span>';
+    btn.onclick = () => { ev('checkin_intent', { venue_id: state.current.id }); openChal(); };
+    return;
+  }
+  if (c.phase === 'live'){
+    btn.className = 'checkin live';
+    btn.innerHTML = 'Check in here<span class="sm">Hold your phone to the tag on the counter</span>';
+    btn.onclick = () => { ev('checkin_intent', { venue_id: state.current.id }); openChal(); };
+    return;
+  }
+  btn.innerHTML = 'The Challenge has ended<span class="sm">Thanks for taking part</span>';
+  btn.onclick = () => {};
+}
+
+/* ---- phrases / gate ---- */
+function paintPhrases(){
+  const v = state.current;
+  const t = TYPES.find(x => x.id === (v.venue_type || 'bar')) || TYPES[0];
+  if (state.user){
+    show($('gate'), false);
+    show($('phrases'), true);
+    $('phrases').innerHTML = typeHtml(t);
+    return;
+  }
+  const total = t.groups.reduce((n, g) => n + g.p.length, 0) +
+                COMMON.reduce((n, g) => n + g.p.length, 0);
+  show($('phrases'), true);
+  $('phrases').innerHTML =
+    grpHtml(t.groups[0], FREE_PHRASES) +
+    `<div class="teaser">
+       <b>${total - FREE_PHRASES} more phrases for this place</b>
+       <span>What to order, how to ask, and what they'll say back.</span>
+       <button id="teaserGo">Create a free account</button>
+     </div>`;
+  $('teaserGo').addEventListener('click', jumpToGate);
+  show($('gate'), true);
+}
+
+function jumpToGate(){
+  show($('gate'), true);
+  $('gate').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  $('g_name').focus();
+}
+
+/* ---- challenge sheet ---- */
+function openChal(){
+  $('chalDetail').innerHTML = chalDetailHtml();
+  show($('s_venue'), false);
+  show($('s_chal'), true);
+  $('sheet').classList.add('on');
+  $('scrim').classList.add('on');
   $('sheet').scrollTop = 0;
-});
+}
+$('chalMore').addEventListener('click', openChal);
+
+/* ============ go ============ */
+paintChallenge();
+loadVenues();
+route();
+
 </script>
 </body>
 </html>
