@@ -411,8 +411,9 @@ footer a{color:var(--muted)}
         </div>
 
         <div id="step2" class="hidden">
+          <p class="sub" id="step2lead"></p>
           <div class="f">
-            <label for="g_code">6-digit code — check your inbox</label>
+            <label for="g_code" id="codeLabel">6-digit code — check your inbox</label>
             <input id="g_code" inputmode="numeric" autocomplete="one-time-code"
                    maxlength="6" placeholder="000000">
           </div>
@@ -453,6 +454,9 @@ footer a{color:var(--muted)}
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script type="module">
+/* Supabase clears the hash as soon as it boots, so read it first: coming back
+   from the email link we need to know whether it worked or the token was dead. */
+const RETURN_HASH = location.hash || '';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 const sb = createClient(
   'https://jsthwwsxbcianujrjfzt.supabase.co',
@@ -1027,12 +1031,44 @@ $('e_area').addEventListener('input', e => {
 });
 
 async function route(){
+  const wasSignedOut = !state.user;
   const { data:{ session } } = await sb.auth.getSession();
   if (session && session.user) await loadProfile(session.user);
   else { state.user = null; state.favs = new Set(); state.myDays = 0; }
+
+  /* Just signed in — from the code or from the email link, it doesn't matter.
+     Save whatever they typed on the form, then get the form out of the way:
+     nothing is more confusing than "Send me a code" when you are already in. */
+  if (wasSignedOut && state.user){
+    await applyPending();
+    show($('step2'), false);
+    show($('step1'), true);
+    clearMsg($('g_msg'));
+    $('g_code').value = '';
+    pendingEmail = null;
+    if (!state.current) closeSheet();
+  }
+
   paintAuth();
   renderView();
   if (state.current) renderSheet();
+}
+
+/* the name and area they gave at sign-up, applied once we know who they are */
+async function applyPending(){
+  let p = null;
+  try{ p = JSON.parse(localStorage.getItem('lp_pending') || 'null'); } catch {}
+  if (!p || !state.user) return;
+  try{
+    await sb.from('profiles').upsert({
+      id: state.user.id,
+      display_name: p.name || state.name || null,
+      area_label: p.area_label, borough: p.borough
+    });
+    if (p.name) state.name = p.name;
+    if (p.area_label){ state.area = p.area_label; state.borough = p.borough; }
+  } catch {}
+  try{ localStorage.removeItem('lp_pending'); } catch {}
 }
 sb.auth.onAuthStateChange(() => route());
 
@@ -1116,7 +1152,14 @@ $('g_send').addEventListener('click', async () => {
   }
 
   pendingEmail = email;
-  if (authMode === 'signup') state.name = name;
+  if (authMode === 'signup'){
+    state.name = name;
+    /* They may finish in a different tab by tapping the link in the email, where
+       none of this is in memory any more. Park it so the profile still gets saved. */
+    try{ localStorage.setItem('lp_pending', JSON.stringify({
+      name, area_label: area ? area[0] : null, borough: area ? area[2] : null
+    })); } catch {}
+  }
 
   // keep the smoke-test lead row, with the session id so behaviour can be joined later
   const t = track();
@@ -1135,8 +1178,17 @@ $('g_send').addEventListener('click', async () => {
 
   show($('step1'), false);
   show($('step2'), true);
-  msg(m, 'Code sent to ' + email + '. It works once and expires in an hour.', 'ok');
-  $('g_code').focus();
+  if (authMode === 'signup'){
+    $('step2lead').textContent =
+      'Check ' + email + " — tap the link in that email and you're in. Nothing else to do.";
+    $('codeLabel').textContent = 'On another device? Type the 6-digit code instead';
+    clearMsg(m);
+  } else {
+    $('step2lead').textContent = '';
+    $('codeLabel').textContent = '6-digit code — check your inbox';
+    msg(m, 'Code sent to ' + email + '. It works once and expires in an hour.', 'ok');
+    $('g_code').focus();
+  }
 });
 
 $('g_again').addEventListener('click', () => {
@@ -1160,15 +1212,7 @@ $('g_verify').addEventListener('click', async () => {
   clearMsg(m);
   ev('email_ok', { meta: { intent: intent, area: area ? area[0] : null } });
 
-  if (authMode === 'signup' && data && data.user && state.name){
-    try{ await sb.from('profiles')
-      .upsert({ id: data.user.id, display_name: state.name,
-                area_label: area ? area[0] : null,
-                borough: area ? area[2] : null }); } catch {}
-  }
-  show($('step1'), true);
-  show($('step2'), false);
-  await route();
+  await route();          // route() saves the profile and closes the form
   $('sheet').scrollTop = 0;
 });
 
@@ -1633,9 +1677,27 @@ function openChal(){
 $('chalMore').addEventListener('click', openChal);
 
 /* ============ go ============ */
+/* Coming back from the link in the email. If the token was already used or has
+   expired — mail scanners open links, so this happens — say so in plain words
+   instead of dropping them on a signed-out page with no explanation. */
+function handleEmailReturn(){
+  if (!RETURN_HASH || RETURN_HASH.indexOf('error') === -1) return;
+  const p = new URLSearchParams(RETURN_HASH.replace(/^#/, ''));
+  const code = p.get('error_code') || '';
+  const desc = p.get('error_description') || '';
+  if (!code && !desc) return;
+  history.replaceState(null, '', location.pathname + location.search);
+  const expired = /expired|invalid/i.test(code + ' ' + desc);
+  openAuth('signin');
+  msg($('g_msg'), expired
+    ? 'That link has already been used or has expired. Enter your email and we\'ll send a code instead.'
+    : decodeURIComponent(desc.replace(/\+/g, ' ')), 'err');
+  ev('email_link_failed', { meta: { code: code } });
+}
+
 paintChallenge();
 loadVenues();
-route();
+route().then(() => { if (!state.user) handleEmailReturn(); });
 
 </script>
 </body>
