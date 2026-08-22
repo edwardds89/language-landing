@@ -196,6 +196,7 @@ button.cta:active{background:var(--accent2)}
 button.cta:disabled{opacity:.55}
 .linkbtn{background:none;border:0;color:var(--muted);font:400 13px/1.4 inherit;
   text-decoration:underline;cursor:pointer;padding:0;margin-top:12px}
+.spamnote{font-size:13px;line-height:1.5;color:var(--muted);margin:12px 0 0}
 .msg{margin-top:12px;font-size:14px;padding:11px 13px;border-radius:9px;display:none}
 .msg.show{display:block}
 .msg.ok{background:rgba(79,196,138,.13);color:var(--ok)}
@@ -386,7 +387,7 @@ footer a{color:var(--muted)}
         <div id="step1">
           <div class="f" id="nameRow">
             <label for="g_name">Your name</label>
-            <input id="g_name" autocomplete="given-name" placeholder="Edoardo">
+            <input id="g_name" autocomplete="given-name" placeholder="e.g. Marco">
           </div>
           <div class="f">
             <label for="g_mail">Email</label>
@@ -418,6 +419,8 @@ footer a{color:var(--muted)}
                    maxlength="6" placeholder="000000">
           </div>
           <button class="cta" id="g_verify">Verify and unlock</button>
+          <p class="spamnote" id="spamNote">Nothing there? Look in your spam folder — and mark it
+            &ldquo;not spam&rdquo;, so the next one lands in your inbox.</p>
           <button class="linkbtn" id="g_again">Use a different email</button>
         </div>
 
@@ -1129,19 +1132,52 @@ $('g_send').addEventListener('click', async () => {
 
   ev('email_submit');
   $('g_send').disabled = true;
+  const REDIRECT = 'https://languagepin.co.uk/';
+  const unknownAddress = e => /signup|not allowed|not found|otp_disabled/i.test(
+    (e && (e.code || e.message)) || '');
+
+  /* Supabase happily accepts a "sign up" for an address that already has an
+     account — it just signs them in, and the name they typed would quietly
+     overwrite the one on the account. So ask first, without creating anything:
+     shouldCreateUser:false succeeds only if the account is already there. */
+  let existing = false;
+  if (authMode === 'signup'){
+    const probe = await sb.auth.signInWithOtp({
+      email, options: { shouldCreateUser: false, emailRedirectTo: REDIRECT }
+    });
+    if (!probe.error) existing = true;
+    else if (!unknownAddress(probe.error)){
+      $('g_send').disabled = false;
+      return msg(m, probe.error.message, 'err');
+    }
+  }
+
+  if (existing){
+    // the probe already sent them a code — turn this into the sign-in it really is
+    $('g_send').disabled = false;
+    setAuthMode('signin');
+    $('g_mail').value = email;
+    pendingEmail = email;
+    show($('step1'), false);
+    show($('step2'), true);
+    $('step2lead').textContent = '';
+    $('codeLabel').textContent = '6-digit code — check your inbox';
+    msg(m, 'You already have an account with this email. We just sent you a code — '
+         + 'type it in and you are back in.', 'ok');
+    $('g_code').focus();
+    ev('signup_existing_email');
+    return;
+  }
+
   const { error } = await sb.auth.signInWithOtp({
     email,
     options: authMode === 'signup'
-      ? { shouldCreateUser: true, data: { display_name: name },
-          emailRedirectTo: 'https://languagepin.co.uk/' }
-      : { shouldCreateUser: false,
-          emailRedirectTo: 'https://languagepin.co.uk/' }
+      ? { shouldCreateUser: true, data: { display_name: name }, emailRedirectTo: REDIRECT }
+      : { shouldCreateUser: false, emailRedirectTo: REDIRECT }
   });
   $('g_send').disabled = false;
   if (error){
-    // shouldCreateUser:false on an unknown address returns "Signups not allowed for otp"
-    if (authMode === 'signin' && /signup|not allowed|not found/i.test(error.message || '')){
-      msg(m, "We don't have an account with that email yet.", 'err');
+    if (authMode === 'signin' && unknownAddress(error)){
       setAuthMode('signup');
       $('g_mail').value = email;
       $('g_name').focus();
@@ -1189,6 +1225,7 @@ $('g_send').addEventListener('click', async () => {
     msg(m, 'Code sent to ' + email + '. It works once and expires in an hour.', 'ok');
     $('g_code').focus();
   }
+  ev('code_sent', { meta: { mode: authMode } });
 });
 
 $('g_again').addEventListener('click', () => {
