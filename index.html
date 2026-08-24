@@ -197,6 +197,30 @@ button.cta:disabled{opacity:.55}
 .linkbtn{background:none;border:0;color:var(--muted);font:400 13px/1.4 inherit;
   text-decoration:underline;cursor:pointer;padding:0;margin-top:12px}
 .spamnote{font-size:13px;line-height:1.5;color:var(--muted);margin:12px 0 0}
+/* ---------- profile panel ---------- */
+.mehead{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin:2px 0 4px}
+.mepts{font-size:34px;font-weight:800;letter-spacing:-.02em}
+.mebadge{display:inline-block;padding:5px 11px;border-radius:999px;font-size:13px;
+  font-weight:600;background:rgba(243,136,8,.15);color:var(--accent2);border:1px solid rgba(243,136,8,.35)}
+.mebadge small{display:block;font-weight:400;font-size:11.5px;color:var(--muted)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0 6px}
+.stats div{background:rgba(255,255,255,.04);border-radius:11px;padding:11px 12px}
+.stats b{display:block;font-size:21px;font-weight:700}
+.stats span{font-size:12px;color:var(--muted)}
+.barwrap{margin:18px 0 4px}
+.barlab{display:flex;justify-content:space-between;font-size:13.5px;margin-bottom:7px}
+.barlab b{font-weight:700}
+.bar{height:9px;border-radius:999px;background:rgba(255,255,255,.09);overflow:hidden}
+.bar i{display:block;height:100%;border-radius:999px;background:var(--accent2);transition:width .5s}
+.barnote{font-size:13px;color:var(--muted);margin-top:8px;line-height:1.5}
+.hist{margin-top:22px}
+.hist h4{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:0 0 9px}
+.hist div{display:flex;justify-content:space-between;gap:12px;padding:9px 0;
+  border-bottom:1px solid var(--line);font-size:14.5px}
+.hist small{color:var(--muted);font-size:12.5px;white-space:nowrap}
+.hear{background:none;border:0;color:var(--accent2);cursor:pointer;padding:2px 6px;
+  font-size:15px;line-height:1;vertical-align:middle}
+.hear:active{opacity:.5}
 .msg{margin-top:12px;font-size:14px;padding:11px 13px;border-radius:9px;display:none}
 .msg.show{display:block}
 .msg.ok{background:rgba(79,196,138,.13);color:var(--ok)}
@@ -271,7 +295,7 @@ footer a{color:var(--muted)}
     <div class="brand">Language<span>Pin</span>
       <span class="tag">Fluent starts at the door.</span></div>
     <div class="who hidden" id="who">
-      <b id="whoName"></b>
+      <b id="whoName" role="button" tabindex="0" style="cursor:pointer;text-decoration:underline"></b>
       <button id="signout">Sign out</button>
     </div>
     <button class="signin" id="signin">Sign in</button>
@@ -436,6 +460,11 @@ footer a{color:var(--muted)}
       <div id="chalDetail"></div>
     </div>
 
+    <div id="s_me" class="hidden">
+      <h2>Your practice</h2>
+      <div id="meBody"></div>
+    </div>
+
   </div>
 </div>
 
@@ -470,8 +499,31 @@ const sb = createClient(
 const COHORT          = 'TEST';        // TEST until launch day, then LP-LONDON-01
 const CHALLENGE_START = '2026-10-06';  // yyyy-mm-dd, Europe/London
 const CHALLENGE_WEEKS = 3;
-const CHALLENGE_GOAL  = 5;             // distinct days needed to win a lesson
 const FREE_PHRASES    = 3;             // phrases shown before creating an account
+
+/* Scoring. The same three numbers live in the challenge_scores view in Postgres —
+   change them in both places or the app and the leaderboard will disagree. */
+const PTS_DAY   = 2500;   // any day you check in at least once
+const PTS_VENUE = 1000;   // the first time you ever check in at a place
+const PTS_EXTRA = 250;    // every further check-in on a day you already counted
+
+/* Two conditions per tier on purpose: points can be collected in one afternoon
+   by walking a dense cluster, days cannot be bought at any price. */
+const TIERS = [
+  { pts: 15000, days: 5,  mins: 30 },
+  { pts: 30000, days: 10, mins: 60 },
+  { pts: 50000, days: 15, mins: 90 },
+];
+
+/* Each rung is something an Italian would actually say about a regular. */
+const BADGES = [
+  { days: 0,  name: 'Explorer',          gloss: 'you have not walked in yet' },
+  { days: 1,  name: 'Cliente',           gloss: 'a customer' },
+  { days: 3,  name: 'Cliente abituale',  gloss: 'a regular' },
+  { days: 7,  name: 'Uno di famiglia',   gloss: 'one of the family' },
+  { days: 14, name: 'Uno del quartiere', gloss: 'a local' },
+  { days: 21, name: 'Di casa',           gloss: 'you practically live here' },
+];
 /* ====================================================================== */
 
 /* ============ phrase content (from languagepin-saythis) ============ */
@@ -917,8 +969,9 @@ function paintChallenge(){
     $('chalTitle').textContent = 'The Challenge starts ' + startLabel();
     $('chalBody').textContent =
       'Tap the LanguagePin tag on the counter each time you practise. Reach ' +
-      CHALLENGE_GOAL + ' different days in ' + CHALLENGE_WEEKS +
-      ' weeks and you win a live Italian lesson with a native teacher.';
+      TIERS[0].pts.toLocaleString() + ' points over ' + TIERS[0].days +
+      ' different days and you win a live Italian lesson with a native teacher — ' +
+      'everyone who gets there gets one.';
     const d = Math.floor(c.ms / DAY),
           h = Math.floor(c.ms % DAY / 3600000),
           m = Math.floor(c.ms % 3600000 / 60000);
@@ -929,7 +982,7 @@ function paintChallenge(){
     $('chalTitle').textContent = 'The Challenge is live';
     $('chalBody').textContent = 'Day ' + c.day + ' of ' + c.total + '. ' +
       (state.user
-        ? 'You have ' + state.myDays + ' of ' + CHALLENGE_GOAL + ' days.'
+        ? 'You have ' + state.myDays + ' of ' + TIERS[0].days + ' days. Tap your name to see your points.'
         : 'Create an account to start counting your days.');
     $('chalCd').innerHTML = '';
   }
@@ -943,14 +996,23 @@ function chalDetailHtml(){
       ? 'Starts ' + startLabel() + ' and runs for ' + CHALLENGE_WEEKS + ' weeks.'
       : c.phase === 'live' ? 'Day ' + c.day + ' of ' + c.total + '.' : 'Finished.'}</p>
     <div class="meta">
-      <div><span>How to take part</span>Walk into any place on the map, order in Italian,
-        then hold your phone to the LanguagePin tag on the counter.</div>
-      <div><span>What counts</span>Separate days, not taps. Four places in one afternoon
-        counts as one day — coming back tomorrow is what counts.</div>
-      <div><span>How to win</span>Reach ${CHALLENGE_GOAL} different days and you win a
-        30-minute live Italian lesson. Most days overall wins 90 minutes, second place 60.</div>
-      <div><span>Who can enter</span>Free, no purchase needed beyond whatever you choose
-        to order. Full terms on the challenge terms page.</div>
+      <div><span>How to take part</span>Open a place on the map and read the phrases first —
+        what to say, and what they'll say back. Then walk in, show the
+        <a href="#" id="chalCard">&ldquo;Sto imparando l'italiano&rdquo; card</a>,
+        order in Italian, and hold your phone to the tag on the counter.</div>
+      <div><span>What you earn</span>${PTS_DAY.toLocaleString()} points for every day you
+        practise. ${PTS_VENUE.toLocaleString()} more the first time you walk into a place
+        you have never been — five new places in one day is five bonuses.
+        ${PTS_EXTRA} for each extra check-in on a day that already counts.</div>
+      <div><span>What you get</span>${TIERS.map(t =>
+        t.mins + ' minutes at ' + t.pts.toLocaleString() + ' points and ' + t.days + ' days')
+        .join(' · ')}. Everyone who gets there gets the lesson — you are not competing for
+        a place, so the board is there to enjoy, not to beat.</div>
+      <div><span>Why days as well as points</span>Points can be collected in one long
+        afternoon. Days cannot. Coming back is the whole exercise.</div>
+      <div><span>Who can enter</span>Anyone learning Italian. Taking part is free: you pay
+        for what you order, at the same price as everyone else. Full terms on the
+        challenge terms page.</div>
     </div>`;
 }
 
@@ -1107,6 +1169,7 @@ function openAuth(mode){
   state.current = null;
   setAuthMode(mode || 'signup');
   show($('s_chal'), false);
+  show($('s_me'), false);
   show($('s_venue'), true);
   show($('venueBits'), false);
   show($('phrases'), false);
@@ -1496,10 +1559,36 @@ function renderTypes(){
     b.addEventListener('click', () => openType(b.dataset.t)));
 }
 
+/* Tap to hear. Free — the phone's own voice, no service behind it.
+   Guarded on purpose: with no Italian voice installed the browser reads Italian
+   with an English one, which teaches the wrong pronunciation. Better no button. */
+let itVoice = null;
+function findItalianVoice(){
+  try{
+    const vs = window.speechSynthesis ? speechSynthesis.getVoices() : [];
+    itVoice = vs.find(v => /^it([-_]|$)/i.test(v.lang)) || null;
+  } catch { itVoice = null; }
+  return itVoice;
+}
+if (window.speechSynthesis){
+  findItalianVoice();
+  speechSynthesis.onvoiceschanged = () => { findItalianVoice(); };
+}
+window.say = enc => {
+  if (!itVoice || !window.speechSynthesis) return;
+  const u = new SpeechSynthesisUtterance(decodeURIComponent(enc));
+  u.voice = itVoice; u.lang = itVoice.lang; u.rate = 0.9;
+  speechSynthesis.cancel(); speechSynthesis.speak(u);
+  ev('phrase_heard');
+};
+
 function grpHtml(g, limit){
   const ps = limit ? g.p.slice(0, limit) : g.p;
+  const hear = t => itVoice
+    ? ` <button class="hear" onclick="say('${encodeURIComponent(t).replace(/'/g, "%27")}')"
+        aria-label="Hear it">&#9654;</button>` : '';
   return `<div class="grp"><h4>${esc(g.n)}</h4>` + ps.map(p =>
-    `<div class="p"><div class="it">${esc(p.it)}</div>
+    `<div class="p"><div class="it">${esc(p.it)}${hear(p.it)}</div>
      <div class="en">${esc(p.en)}</div>` +
     (p.note ? `<div class="note">${esc(p.note)}</div>` : '') +
     `</div>`).join('') + `</div>`;
@@ -1572,6 +1661,7 @@ function openVenue(v){
     moveMap(() => map.setView([v.lat, v.lng], Math.max(map.getZoom(), 15)));
   show($('venueBits'), true);
   show($('s_chal'), false);
+  show($('s_me'), false);
   show($('s_venue'), true);
   renderSheet();
   ev('pin_click', { venue_id: v.id });
@@ -1720,12 +1810,101 @@ function jumpToGate(){
 function openChal(){
   $('chalDetail').innerHTML = chalDetailHtml();
   show($('s_venue'), false);
+  show($('s_me'), false);
   show($('s_chal'), true);
   $('sheet').classList.add('on');
   $('scrim').classList.add('on');
   $('sheet').scrollTop = 0;
+  const link = $('chalCard');
+  if (link) link.onclick = e => { e.preventDefault(); openPinCard(); };
 }
 $('chalMore').addEventListener('click', openChal);
+
+/* ============ your practice ============ */
+/* Scored here from the rows the reader owns. The identical arithmetic lives in
+   challenge_scores in Postgres for the public board — keep the two in step. */
+function scoreFrom(rows){
+  const days   = new Set(rows.map(r => r.london_day));
+  const venues = new Set(rows.map(r => r.venue_id));
+  const extra  = Math.max(rows.length - days.size, 0);
+  return { taps: rows.length, days: days.size, venues: venues.size, extra,
+           points: days.size * PTS_DAY + venues.size * PTS_VENUE + extra * PTS_EXTRA };
+}
+const badgeFor = d => BADGES.filter(b => d >= b.days).pop() || BADGES[0];
+const reached  = (t, s) => s.points >= t.pts && s.days >= t.days;
+
+function meHtml(s, rows){
+  const b    = badgeFor(s.days);
+  const next = TIERS.find(t => !reached(t, s));
+  const got  = TIERS.filter(t => reached(t, s));
+
+  let bar = '';
+  if (next){
+    const pc   = Math.min(100, Math.round(s.points / next.pts * 100));
+    const dLeft = Math.max(0, next.days - s.days);
+    const pLeft = Math.max(0, next.pts - s.points);
+    bar = `<div class="barwrap">
+      <div class="barlab"><span>Next: a ${next.mins}-minute lesson</span>
+        <b>${s.points.toLocaleString()} / ${next.pts.toLocaleString()}</b></div>
+      <div class="bar"><i style="width:${pc}%"></i></div>
+      <div class="barnote">${
+        pLeft && dLeft ? pLeft.toLocaleString() + ' points to go, and practice on '
+                         + dLeft + ' more ' + (dLeft === 1 ? 'day' : 'days') + '.'
+        : pLeft        ? pLeft.toLocaleString() + ' points to go — the days are already there.'
+        : dLeft        ? 'Points are there. Now practise on ' + dLeft + ' more '
+                         + (dLeft === 1 ? 'day' : 'days') + ' — that part cannot be rushed.'
+                       : 'Unlocked.'}</div>
+    </div>`;
+  } else {
+    bar = `<div class="barnote">Every lesson unlocked. Nothing left to chase — just keep going.</div>`;
+  }
+
+  const hist = rows.length ? `<div class="hist"><h4>Every check-in</h4>` + rows.map(r => {
+      const v = state.venues.find(x => x.id === r.venue_id);
+      const d = new Date(r.tapped_at);
+      return `<div><span>${esc(v ? v.name : 'A place on the map')}</span>
+        <small>${d.toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</small></div>`;
+    }).join('') + `</div>`
+    : `<div class="hist"><h4>Every check-in</h4><p class="sub">Nothing yet. Your first
+       check-in lands here the day you walk in and order in Italian.</p></div>`;
+
+  return `
+    <div class="mehead">
+      <div class="mepts">${s.points.toLocaleString()}</div>
+      <span class="mebadge">${esc(b.name)}<small>${esc(b.gloss)}</small></span>
+    </div>
+    <p class="sub" style="margin:0 0 4px">points${got.length
+      ? ' · ' + got.map(t => t.mins + ' min unlocked').join(' · ') : ''}</p>
+    <div class="stats">
+      <div><b>${s.days}</b><span>${s.days === 1 ? 'day' : 'days'} of practice</span></div>
+      <div><b>${s.venues}</b><span>${s.venues === 1 ? 'place' : 'places'} visited</span></div>
+      <div><b>${(s.venues * PTS_VENUE).toLocaleString()}</b><span>from new places</span></div>
+    </div>
+    ${bar}${hist}`;
+}
+
+async function openMe(){
+  show($('s_venue'), false);
+  show($('s_chal'), false);
+  show($('s_me'), true);
+  $('meBody').innerHTML = '<p class="sub">Counting…</p>';
+  $('sheet').classList.add('on');
+  $('scrim').classList.add('on');
+  $('sheet').scrollTop = 0;
+  ev('profile_open');
+  let rows = [];
+  try{
+    const { data } = await sb.from('checkins')
+      .select('venue_id,tapped_at,london_day')
+      .order('tapped_at', { ascending: false });
+    rows = data || [];
+  } catch {}
+  $('meBody').innerHTML = meHtml(scoreFrom(rows), rows);
+}
+$('whoName').addEventListener('click', openMe);
+$('whoName').addEventListener('keydown', e => {
+  if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); openMe(); }
+});
 
 /* ============ go ============ */
 /* Coming back from the link in the email. If the token was already used or has
