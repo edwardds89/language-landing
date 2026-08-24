@@ -1322,6 +1322,16 @@ map.on('movestart zoomstart', () => {
 });
 /* run a programmatic map move without logging it as a user interaction */
 function moveMap(fn){ mapAuto++; try { fn(); } finally { setTimeout(() => mapAuto--, 400); } }
+
+/* Every pin lives in this layer, and the layer is rebuilt from the filtered
+   list. Before, the pins were added once and never removed: picking
+   "Restaurant" moved the map but left all 107 pins sitting on it. */
+const markerLayer = L.layerGroup().addTo(map);
+const markerFor = new Map();          // venue id -> marker
+function paintMarkers(list){
+  markerLayer.clearLayers();
+  list.forEach(v => { const m = markerFor.get(v.id); if (m) m.addTo(markerLayer); });
+}
 L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
   attribution: '&copy; OpenStreetMap &copy; CARTO', maxZoom: 19
 }).addTo(map);
@@ -1370,14 +1380,11 @@ async function loadVenues(){
     renderList();
     return;
   }
-  const pts = [];
   state.venues.forEach(v => {
     if (v.lat == null || v.lng == null) return;
-    L.marker([v.lat, v.lng], { icon: iconFor(v.venue_type) })
-      .addTo(map).on('click', () => openVenue(v));
-    pts.push([v.lat, v.lng]);
+    markerFor.set(v.id, L.marker([v.lat, v.lng], { icon: iconFor(v.venue_type) })
+      .on('click', () => openVenue(v)));
   });
-  $('hint').textContent = state.venues.length + ' places mapped. Tap a pin.';
   renderFilters();
   renderList(true);
 }
@@ -1468,6 +1475,13 @@ function renderList(refit){
       const v = state.venues.find(x => String(x.id) === el.dataset.v);
       if (v) openVenue(v);
     }));
+
+  paintMarkers(list);
+  const all = state.filter === 'all';
+  $('hint').textContent = list.length
+    ? (all ? list.length + ' places mapped. Tap a pin.'
+           : list.length + (list.length === 1 ? ' place' : ' places') + ' here. Tap a pin.')
+    : 'Nothing on the map for this filter yet.';
   if (refit) fitTo(list);
 }
 
