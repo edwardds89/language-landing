@@ -39,12 +39,24 @@ button{color:inherit}
 .topbar .brand span{color:var(--accent)}
 .topbar .tag{font-size:12.5px;color:var(--muted);display:block;font-weight:400;
   letter-spacing:0;margin-top:1px}
-.topbar .who{margin-left:auto;font-size:13px;color:var(--muted);text-align:right}
-.topbar .who b{display:block;color:var(--ink);font-size:14px;font-weight:600}
+/* Il nome in alto a destra apre il profilo. Sottolinearlo non bastava: nessuno
+   si aspetta che un nome sia un bottone. Cerchio con l'iniziale + freccia, che
+   e' il segnale che tutti riconoscono da qualunque altra app. */
+.topbar .who{margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;gap:3px}
+.mebtn{display:flex;align-items:center;gap:8px;background:var(--bg2);
+  border:1px solid var(--line);border-radius:99px;padding:5px 11px 5px 5px;
+  color:var(--ink);font:600 14px/1 inherit;cursor:pointer;max-width:190px;
+  text-decoration:none}
+.mebtn:active{background:var(--bg2)}
+.mebtn .av{width:26px;height:26px;border-radius:50%;background:var(--accent);
+  color:#052733;font:800 13px/26px inherit;text-align:center;flex:0 0 auto;
+  text-transform:uppercase}
+.mebtn .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mebtn .chev{width:14px;height:14px;color:var(--accent2);flex:0 0 auto}
 .topbar .signin{margin-left:auto;background:transparent;border:1px solid var(--line);
   color:var(--ink);font:600 13.5px/1 inherit;padding:9px 15px;border-radius:99px;cursor:pointer}
 .topbar .signin:active{background:var(--bg2)}
-.topbar .who button{background:none;border:0;color:var(--muted);font:inherit;
+.topbar .who #signout{background:none;border:0;color:var(--muted);font:inherit;
   font-size:12px;text-decoration:underline;cursor:pointer;padding:0;margin-top:2px}
 
 /* ---------- hero ---------- */
@@ -302,7 +314,13 @@ footer a{color:var(--muted)}
     <div class="brand">Language<span>Pin</span>
       <span class="tag">Fluent starts at the door.</span></div>
     <div class="who hidden" id="who">
-      <b id="whoName" role="button" tabindex="0" style="cursor:pointer;text-decoration:underline"></b>
+      <button class="mebtn" id="whoName" aria-label="Your points and history">
+        <span class="av" id="whoAv"></span>
+        <span class="nm" id="whoNm"></span>
+        <svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"
+          fill="none" stroke="currentColor" stroke-width="2.6"
+          stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
       <button id="signout">Sign out</button>
     </div>
     <button class="signin" id="signin">Sign in</button>
@@ -1060,7 +1078,9 @@ function paintAuth(){
   show($('hero'), !on);
   show($('heroIn'), on);
   if (on){
-    $('whoName').textContent = state.name || 'Signed in';
+    const nome = state.name || 'Signed in';
+    $('whoNm').textContent = nome;
+    $('whoAv').textContent = (nome.trim()[0] || '?');
     $('greetName').textContent = (state.name || 'there') + '!';
   }
   paintChallenge();
@@ -1958,10 +1978,8 @@ async function openMe(){
   } catch {}
   $('meBody').innerHTML = meHtml(scoreFrom(rows), rows);
 }
+// e' un <button> vero: Invio e barra spaziatrice li gestisce il browser
 $('whoName').addEventListener('click', openMe);
-$('whoName').addEventListener('keydown', e => {
-  if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); openMe(); }
-});
 
 /* ============ go ============ */
 /* Coming back from the link in the email. If the token was already used or has
