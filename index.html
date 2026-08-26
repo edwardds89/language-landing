@@ -93,8 +93,8 @@ h1 em{font-style:normal;color:var(--accent2)}
 /* ---------- say-this list ---------- */
 .types{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
 .tcard{background:var(--card);border:1px solid var(--line);border-radius:13px;
-  padding:14px;cursor:pointer;text-align:left}
-.tcard b{display:block;font-size:16px;font-weight:700}
+  padding:14px;cursor:pointer;text-align:left;color:var(--ink)}
+.tcard b{display:block;font-size:16px;font-weight:700;color:var(--ink)}
 .tcard span{display:block;font-size:13px;color:var(--muted);margin-top:2px}
 .tcard .em{font-size:22px;display:block;margin-bottom:6px}
 .back{background:transparent;border:0;color:var(--accent2);font:600 14px/1 inherit;
@@ -1553,7 +1553,7 @@ function renderTypes(){
   $('types').innerHTML = TYPES.map(t => `
     <button class="tcard" data-t="${esc(t.id)}">
       <span class="em">${t.em || ''}</span>
-      <b>${esc(t.en)}</b><span>${esc(t.it)}</span>
+      <b>${esc(t.it)}</b><span>${esc(t.en)}</span>
     </button>`).join('');
   $('types').querySelectorAll('.tcard').forEach(b =>
     b.addEventListener('click', () => openType(b.dataset.t)));
@@ -1563,16 +1563,47 @@ function renderTypes(){
    Guarded on purpose: with no Italian voice installed the browser reads Italian
    with an English one, which teaches the wrong pronunciation. Better no button. */
 let itVoice = null;
+
+/* Un telefono ha spesso dieci voci italiane e la prima della lista e' quasi
+   sempre la peggiore: su Mac e' "Alice", la vecchia voce compatta. Le voci di
+   rete (Google) e quelle "enhanced" di Apple sono neurali e suonano umane.
+   Quindi non prendiamo la prima: le ordiniamo. */
+const VOCI_SCHERZO =
+  /^(bells|boing|bubbles|jester|organ|superstar|trinoids|whisper|wobble|bad news|good news|albert|zarvox|cellos|eddy|flo|grandma|grandpa|reed|rocko|sandy|shelley|junior|kathy|ralph|fred|princess)\b/i;
+
+function punteggioVoce(v){
+  const n = v.name || '';
+  let s = 0;
+  if (!v.localService)                                s += 100; // voci di rete = neurali
+  if (/google/i.test(n))                              s += 50;
+  if (/siri|enhanced|premium|neural|natural/i.test(n)) s += 40;
+  if (/compact/i.test(n))                             s -= 20;
+  if (/^alice\b/i.test(n))                            s -= 10;  // la compatta di default
+  if (/^it[-_]it$/i.test(v.lang))                     s += 5;   // Italia, non it-CH
+  return s;
+}
+
 function findItalianVoice(){
   try{
     const vs = window.speechSynthesis ? speechSynthesis.getVoices() : [];
-    itVoice = vs.find(v => /^it([-_]|$)/i.test(v.lang)) || null;
+    const it = vs.filter(v => /^it([-_]|$)/i.test(v.lang));
+    if (!it.length){ itVoice = null; return null; }
+    const serie = it.filter(v => !VOCI_SCHERZO.test(v.name || ''));
+    const lista = (serie.length ? serie : it).slice()
+      .sort((a, b) => punteggioVoce(b) - punteggioVoce(a));
+    itVoice = lista[0] || null;
   } catch { itVoice = null; }
   return itVoice;
 }
 if (window.speechSynthesis){
   findItalianVoice();
-  speechSynthesis.onvoiceschanged = () => { findItalianVoice(); };
+  speechSynthesis.onvoiceschanged = () => {
+    const prima = itVoice;
+    findItalianVoice();
+    // Le voci arrivano in ritardo su Chrome: se la scheda e' gia' aperta e i
+    // bottoni non erano stati disegnati, la ridisegniamo adesso.
+    if (!prima && itVoice && typeof ridisegnaTipoAperto === 'function') ridisegnaTipoAperto();
+  };
 }
 window.say = enc => {
   if (!itVoice || !window.speechSynthesis) return;
@@ -1606,9 +1637,16 @@ function typeHtml(t){
   return html;
 }
 
+let tipoAperto = null;
+function ridisegnaTipoAperto(){
+  if (!tipoAperto) return;
+  const t = TYPES.find(x => x.id === tipoAperto);
+  if (t) $('td_body').innerHTML = typeHtml(t);
+}
 function openType(id){
   const t = TYPES.find(x => x.id === id) || TYPES[0];
-  $('td_name').textContent = t.en + ' · ' + t.it;
+  tipoAperto = t.id;
+  $('td_name').textContent = t.it + ' · ' + t.en;
   $('td_body').innerHTML = typeHtml(t);
   const n = state.venues.filter(v => v.venue_type === t.id).length;
   $('td_go').textContent = n
