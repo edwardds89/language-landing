@@ -48,9 +48,11 @@ button{color:inherit}
   color:var(--ink);font:600 14px/1 inherit;cursor:pointer;max-width:190px;
   text-decoration:none}
 .mebtn:active{background:var(--bg2)}
-.mebtn .av{width:26px;height:26px;border-radius:50%;background:var(--accent);
-  color:#052733;font:800 13px/26px inherit;text-align:center;flex:0 0 auto;
-  text-transform:uppercase}
+/* flex, non line-height: con un font ereditato la riga non centra mai davvero,
+   e con dentro un'icona centra ancora meno */
+.mebtn .av{width:27px;height:27px;border-radius:50%;background:var(--accent);
+  color:#052733;flex:0 0 auto;display:flex;align-items:center;justify-content:center}
+.mebtn .av svg{width:16px;height:16px;display:block}
 .mebtn .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .mebtn .chev{width:14px;height:14px;color:var(--accent2);flex:0 0 auto}
 .topbar .signin{margin-left:auto;background:transparent;border:1px solid var(--line);
@@ -219,8 +221,12 @@ button.cta:disabled{opacity:.55}
 /* ---------- profile panel ---------- */
 .mehead{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin:2px 0 4px}
 .mepts{font-size:34px;font-weight:800;letter-spacing:-.02em}
-.mebadge{display:inline-block;padding:5px 11px;border-radius:999px;font-size:13px;
-  font-weight:600;background:rgba(243,136,8,.15);color:var(--accent2);border:1px solid rgba(243,136,8,.35)}
+.mebadge{display:inline-flex;align-items:center;gap:9px;padding:6px 13px 6px 7px;
+  border-radius:999px;font-size:13px;font-weight:600;background:rgba(243,136,8,.15);
+  color:var(--accent2);border:1px solid rgba(243,136,8,.35)}
+.mebadge .bi{width:30px;height:30px;border-radius:50%;background:var(--accent);
+  color:#052733;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.mebadge .bi svg{width:18px;height:18px;display:block}
 .mebadge small{display:block;font-weight:400;font-size:11.5px;color:var(--muted)}
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0 6px}
 .stats div{background:rgba(255,255,255,.04);border-radius:11px;padding:11px 12px}
@@ -1080,7 +1086,10 @@ function paintAuth(){
   if (on){
     const nome = state.name || 'Signed in';
     $('whoNm').textContent = nome;
-    $('whoAv').textContent = (nome.trim()[0] || '?');
+    const bd = badgeFor(state.myDays);
+    $('whoAv').innerHTML = badgeSvg(bd.name);
+    $('whoName').setAttribute('title', bd.name + ' — ' + bd.gloss);
+    $('whoName').setAttribute('aria-label', nome + ', ' + bd.name + '. Your points and history');
     $('greetName').textContent = (state.name || 'there') + '!';
   }
   paintChallenge();
@@ -1908,6 +1917,22 @@ function scoreFrom(rows){
            points: days.size * PTS_DAY + venues.size * PTS_VENUE + extra * PTS_EXTRA };
 }
 const badgeFor = d => BADGES.filter(b => d >= b.days).pop() || BADGES[0];
+
+/* Un segno per ogni gradino, tutti nello stesso linguaggio: tratto singolo,
+   niente riempimenti, 24x24. A 16px il dettaglio sparisce, quindi restano forme
+   che si riconoscono anche piccolissime. Il racconto va da fuori a dentro:
+   bussola -> tazza -> ci torni -> ti conoscono -> sei del quartiere -> hai le chiavi. */
+const BADGE_ART = {
+  'Explorer':          '<circle cx="12" cy="12" r="8.5"/><path d="M15.6 8.4l-2.3 5.2-5.2 2.3 2.3-5.2z"/>',
+  'Cliente':           '<path d="M4.5 7.5h11v5.5a4 4 0 0 1-4 4h-3a4 4 0 0 1-4-4z"/><path d="M15.5 9h1.8a2.4 2.4 0 0 1 0 4.8h-1.8"/><path d="M4 20.5h13"/>',
+  'Cliente abituale':  '<path d="M4 10a8 8 0 0 1 13.3-6"/><path d="M20 14a8 8 0 0 1-13.3 6"/><path d="M3.5 4.5V10H9"/><path d="M20.5 19.5V14H15"/>',
+  'Uno di famiglia':   '<circle cx="9" cy="8" r="3.2"/><circle cx="16.8" cy="9.8" r="2.4"/><path d="M3.2 19.5a5.8 5.8 0 0 1 11.6 0"/><path d="M15.6 14.4a4.8 4.8 0 0 1 5.2 5.1"/>',
+  'Uno del quartiere': '<path d="M3 20.5V11l4.5-3.5L12 11v9.5"/><path d="M12.5 20.5V14l4-3 4 3v6.5"/><path d="M1.8 20.5h20.4"/>',
+  'Di casa':           '<circle cx="8.5" cy="14.5" r="4"/><path d="M11.4 11.6L20 3"/><path d="M17 5.4l2.2 2.2"/><path d="M14.8 7.6L17 9.8"/>'
+};
+const badgeSvg = name => `<svg viewBox="0 0 24 24" aria-hidden="true" fill="none"
+  stroke="currentColor" stroke-width="1.9" stroke-linecap="round"
+  stroke-linejoin="round">${BADGE_ART[name] || BADGE_ART['Explorer']}</svg>`;
 const reached  = (t, s) => s.points >= t.pts && s.days >= t.days;
 
 function meHtml(s, rows){
@@ -1948,7 +1973,8 @@ function meHtml(s, rows){
   return `
     <div class="mehead">
       <div class="mepts">${s.points.toLocaleString()}</div>
-      <span class="mebadge">${esc(b.name)}<small>${esc(b.gloss)}</small></span>
+      <span class="mebadge"><i class="bi">${badgeSvg(b.name)}</i><span>${esc(b.name)}
+        <small>${esc(b.gloss)}</small></span></span>
     </div>
     <p class="sub" style="margin:0 0 4px">points${got.length
       ? ' · ' + got.map(t => t.mins + ' min unlocked').join(' · ') : ''}</p>
