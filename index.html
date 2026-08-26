@@ -24,6 +24,11 @@ y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);})
 html,body{margin:0;background:var(--bg);color:var(--ink);
   font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
   -webkit-font-smoothing:antialiased}
+/* Un <a> senza colore diventa il blu di sistema, illeggibile su questo fondo;
+   un <button> senza colore diventa nero. Le due righe qui sotto chiudono la
+   questione una volta per tutte: chi vuole un colore diverso lo dichiara dopo. */
+a{color:var(--accent2)}
+button{color:inherit}
 .wrap{max-width:680px;margin:0 auto;padding:0 18px}
 .hidden{display:none !important}
 
@@ -143,6 +148,8 @@ h2{font-size:22px;margin:0 0 4px;letter-spacing:-.01em;font-weight:750}
 .meta{background:var(--bg);border:1px solid var(--line);border-radius:12px;
   padding:13px 15px;margin-bottom:16px;font-size:14.5px}
 .meta div+div{margin-top:9px}
+.meta b{font-weight:700;color:var(--ink)}
+.meta a{color:var(--accent2);text-decoration:underline}
 .meta span{color:var(--muted);display:block;font-size:11.5px;
   text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px}
 .acts{display:flex;gap:9px;margin-bottom:18px}
@@ -1004,15 +1011,18 @@ function chalDetailHtml(){
         practise. ${PTS_VENUE.toLocaleString()} more the first time you walk into a place
         you have never been — five new places in one day is five bonuses.
         ${PTS_EXTRA} for each extra check-in on a day that already counts.</div>
-      <div><span>What you get</span>${TIERS.map(t =>
-        t.mins + ' minutes at ' + t.pts.toLocaleString() + ' points and ' + t.days + ' days')
-        .join(' · ')}. Everyone who gets there gets the lesson — you are not competing for
-        a place, so the board is there to enjoy, not to beat.</div>
+      <div><span>What you get</span><b>A live Italian lesson with a native teacher,
+        one to one.</b> How long it lasts depends on how far you get: ${TIERS.map(t =>
+        t.mins + ' minutes at ' + t.pts.toLocaleString() + ' points over ' + t.days + ' days')
+        .join(' · ')}. Everyone who reaches a level gets that lesson — you are not competing
+        for a place, so the board is there to enjoy, not to beat.</div>
       <div><span>Why days as well as points</span>Points can be collected in one long
-        afternoon. Days cannot. Coming back is the whole exercise.</div>
+        afternoon. Confidence cannot. The first time you order in Italian you are thinking
+        about the words; by the fifth you are thinking about the coffee. Coming back on
+        different days is what turns a phrase you look up into one you just say.</div>
       <div><span>Who can enter</span>Anyone learning Italian. Taking part is free: you pay
-        for what you order, at the same price as everyone else. Full terms on the
-        challenge terms page.</div>
+        for what you order, at the same price as everyone else.
+        <a href="/challenge-terms.html">Full terms</a>.</div>
     </div>`;
 }
 
