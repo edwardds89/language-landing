@@ -1490,6 +1490,10 @@ $('nearme').addEventListener('click', () => {
 function renderFilters(){
   const used = [...new Set(state.venues.map(v => v.venue_type).filter(Boolean))];
   const base = [['all', 'All places']];
+  /* La stella serviva a qualcosa solo se poi i preferiti si possono rivedere.
+     Il filtro compare appena ne salvi uno, e sparisce se li togli tutti. */
+  if (state.user && state.favs.size)
+    base.push(['__fav', '★ Saved (' + state.favs.size + ')']);
   if (state.user && state.borough) base.push(['__mine', 'In ' + state.borough]);
   $('filters').innerHTML =
     base.concat(used.map(t => [t, typeName(t)]))
@@ -1518,6 +1522,8 @@ function fitTo(list){
 function renderList(refit){
   let list = state.filter === 'all'
     ? state.venues.slice()
+    : state.filter === '__fav'
+      ? state.venues.filter(v => state.favs.has(v.id))
     : state.filter === '__mine'
       ? state.venues.filter(v => v.borough && v.borough === state.borough)
       : state.venues.filter(v => v.venue_type === state.filter);
@@ -1753,7 +1759,10 @@ function paintFav(){
       try{ await sb.from('favourites')
         .insert({ user_id: state.user.id, venue_id: v.id }); } catch {}
     }
-    paintFav(); renderList();
+    // se togli l'ultimo preferito mentre stai guardando "Saved", il filtro
+    // sparirebbe lasciandoti su una lista vuota senza via d'uscita
+    if (state.filter === '__fav' && !state.favs.size) state.filter = 'all';
+    paintFav(); renderFilters(); renderList();
   };
 }
 
