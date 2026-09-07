@@ -355,7 +355,7 @@ footer a{color:var(--muted)}
 
   <!-- challenge banner -->
   <div class="chal hidden" id="chal">
-    <h3 id="chalTitle">The October Challenge</h3>
+    <h3 id="chalTitle">The LanguagePin Challenge</h3>
     <p id="chalBody"></p>
     <div class="cd" id="chalCd"></div>
     <a class="more" id="chalMore">How it works</a>
@@ -436,8 +436,8 @@ footer a{color:var(--muted)}
       <div class="gate hidden" id="gate">
         <h3 id="gateTitle">Create your account</h3>
         <p id="gateBody">Every place on the map unlocks the phrases you'll need —
-           what to say, and what they'll say back. Plus saved places and the
-           October Challenge.</p>
+           what to say, and what they'll say back. Plus saved places, and first
+           word when the Challenge opens.</p>
 
         <div id="step1">
           <div class="f" id="nameRow">
@@ -528,7 +528,7 @@ const sb = createClient(
 
 /* ================= CONFIG — change these, nothing else ================= */
 const COHORT          = 'TEST';        // TEST until launch day, then LP-LONDON-01
-const CHALLENGE_START = '2026-10-06';  // yyyy-mm-dd, Europe/London
+const CHALLENGE_START = null;          // null = nessuna data annunciata; rimetti 'yyyy-mm-dd' e il conto alla rovescia torna
 const CHALLENGE_WEEKS = 3;
 const FREE_PHRASES    = 3;             // phrases shown before creating an account
 
@@ -978,6 +978,7 @@ if (typeof L === 'undefined') fail('Leaflet did not load — check your connecti
 /* ============ challenge clock ============ */
 const DAY = 86400000;
 function chalState(){
+  if (!CHALLENGE_START) return { phase:'soon' };
   const start = new Date(CHALLENGE_START + 'T00:00:00Z').getTime();
   const end   = start + CHALLENGE_WEEKS * 7 * DAY;
   const now   = Date.now();
@@ -995,6 +996,16 @@ function paintChallenge(){
   if (!box) return;
   show(box, c.phase !== 'over');
   if (c.phase === 'over'){ return; }
+
+  if (c.phase === 'soon'){
+    $('chalTitle').textContent = 'The Challenge is coming';
+    $('chalBody').textContent =
+      'Three weeks of practising Italian in real places, with a live lesson for ' +
+      'everyone who reaches the target. Dates announced soon — everyone with an ' +
+      'account hears first.';
+    $('chalCd').innerHTML = '';
+    return;
+  }
 
   if (c.phase === 'before'){
     $('chalTitle').textContent = 'The Challenge starts ' + startLabel();
@@ -1191,7 +1202,7 @@ function setAuthMode(mode){
   show($('nameRow'), signup);
   $('gateTitle').textContent = signup ? 'Create your account' : 'Welcome back';
   $('gateBody').textContent  = signup
-    ? "Every place on the map unlocks the phrases you'll need — what to say, and what they'll say back. Plus saved places and the October Challenge."
+    ? "Every place on the map unlocks the phrases you'll need — what to say, and what they'll say back. Plus saved places, and first word when the Challenge opens."
     : 'Enter the email you signed up with and we\'ll send you a code.';
   $('modeSwitch').textContent = signup
     ? 'Already have an account? Sign in'
@@ -1619,9 +1630,9 @@ const VOCI_SCHERZO =
 function punteggioVoce(v){
   const n = v.name || '';
   let s = 0;
-  if (!v.localService)                                s += 100; // voci di rete = neurali
-  if (/google/i.test(n))                              s += 50;
-  if (/siri|enhanced|premium|neural|natural/i.test(n)) s += 40;
+  if (/siri|enhanced|premium|neural|natural/i.test(n)) s += 100; // le uniche davvero umane
+  if (!v.localService)                                s += 30;  // di rete: meglio della compatta, non di una premium
+  if (/google/i.test(n))                              s += 0;   // ripiego, non preferita
   if (/compact/i.test(n))                             s -= 20;
   if (/^alice\b/i.test(n))                            s -= 10;  // la compatta di default
   if (/^it[-_]it$/i.test(v.lang))                     s += 5;   // Italia, non it-CH
