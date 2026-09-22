@@ -1,0 +1,406 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>LanguagePin · Giro di chiamate</title>
+<link rel="icon" href="logo_tab.png">
+<style>
+  :root{
+    --navy:#1B4B5A; --orange:#E8871E; --green:#4E8C68; --red:#B4483C;
+    --ink:#1D2A30; --grey:#5C6B72; --line:#DCE6E9; --bg:#FBF8F2; --card:#fff;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{font:15px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+       color:var(--ink);background:var(--bg);-webkit-text-size-adjust:100%}
+  header{position:sticky;top:0;z-index:5;background:var(--navy);color:#fff;
+         padding:10px 14px calc(10px + env(safe-area-inset-bottom,0)) 14px;
+         display:flex;align-items:center;gap:10px}
+  header h1{font-size:15px;margin:0;font-weight:700;letter-spacing:.2px;flex:1}
+  header .who{font-size:11px;opacity:.75;max-width:40%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  header button{background:rgba(255,255,255,.15);color:#fff;border:0;border-radius:6px;
+                padding:5px 9px;font-size:12px;cursor:pointer}
+  main{padding:12px 12px 80px}
+  .wrap{max-width:760px;margin:0 auto}
+
+  /* ---- gate ---- */
+  .gate{max-width:380px;margin:12vh auto;background:var(--card);border:1px solid var(--line);
+        border-radius:12px;padding:22px}
+  .gate h2{margin:0 0 6px;font-size:17px;color:var(--navy)}
+  .gate p{margin:0 0 14px;font-size:13px;color:var(--grey)}
+  .gate input{width:100%;padding:11px;border:1px solid var(--line);border-radius:8px;font-size:16px}
+  .gate button{width:100%;margin-top:10px;padding:12px;border:0;border-radius:8px;
+               background:var(--orange);color:#fff;font-size:15px;font-weight:600;cursor:pointer}
+  .msg{margin-top:12px;font-size:13px;padding:10px;border-radius:8px;display:none}
+  .msg.ok{display:block;background:#EAF3EE;color:#2F5F45}
+  .msg.err{display:block;background:#FBEDEB;color:#8C342A}
+
+  /* ---- stats ---- */
+  .stats{display:flex;gap:6px;overflow-x:auto;margin-bottom:10px;-webkit-overflow-scrolling:touch}
+  .stat{flex:0 0 auto;background:var(--card);border:1px solid var(--line);border-radius:9px;
+        padding:7px 11px;text-align:center;min-width:78px}
+  .stat b{display:block;font-size:18px;line-height:1.1;color:var(--navy)}
+  .stat span{font-size:10.5px;color:var(--grey);text-transform:uppercase;letter-spacing:.4px}
+  .stat.due b{color:var(--orange)}
+
+  /* ---- filtri ---- */
+  .filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+  .filters select,.filters input{flex:1 1 44%;min-width:0;padding:9px;border:1px solid var(--line);
+        border-radius:8px;background:var(--card);font-size:14px;color:var(--ink)}
+
+  /* ---- cards ---- */
+  ul{list-style:none;margin:0;padding:0}
+  li.v{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--line);
+       border-radius:10px;padding:11px 12px;margin-bottom:9px}
+  li.v.si{border-left-color:var(--green)}
+  li.v.no{border-left-color:#C3CED2}
+  li.v.richiamare{border-left-color:var(--orange)}
+  li.v.chiusooggi{opacity:.55}
+  .vh{display:flex;align-items:baseline;gap:8px}
+  .vh .nm{font-weight:700;font-size:15px;color:var(--navy);flex:1}
+  .vh .sc{font-size:11px;color:var(--grey);white-space:nowrap}
+  .meta{font-size:12px;color:var(--grey);margin-top:2px}
+  .tags{margin-top:7px;display:flex;flex-wrap:wrap;gap:5px}
+  .tag{font-size:11px;padding:2px 7px;border-radius:20px;background:#EEF4F6;color:var(--navy)}
+  .tag.warn{background:#FCEEDD;color:#8A5410}
+  .tag.bad{background:#FBEDEB;color:#8C342A}
+  .tag.good{background:#EAF3EE;color:#2F5F45}
+  .row{display:flex;gap:7px;margin-top:9px}
+  .row a,.row button{flex:1;text-align:center;padding:9px;border-radius:8px;font-size:13.5px;
+        font-weight:600;text-decoration:none;border:0;cursor:pointer}
+  .call{background:var(--navy);color:#fff}
+  .call.off{background:#E4EAEC;color:#93A3A9;pointer-events:none}
+  .log{background:var(--orange);color:#fff}
+  .hist{margin-top:7px;font-size:11.5px;color:var(--grey)}
+  .empty{text-align:center;color:var(--grey);padding:40px 10px;font-size:14px}
+
+  /* ---- dialog ---- */
+  dialog{border:0;border-radius:14px;padding:0;width:min(520px,94vw);
+         box-shadow:0 12px 40px rgba(0,0,0,.25)}
+  dialog::backdrop{background:rgba(20,30,35,.55)}
+  .dh{background:var(--navy);color:#fff;padding:12px 15px;font-weight:700;font-size:15px}
+  form.body{padding:14px 15px 16px;max-height:70vh;overflow:auto}
+  label{display:block;font-size:11.5px;text-transform:uppercase;letter-spacing:.4px;
+        color:var(--grey);margin:11px 0 3px;font-weight:600}
+  input[type=text],input[type=datetime-local],textarea,select{width:100%;padding:9px;
+        border:1px solid var(--line);border-radius:8px;font-size:15px;font-family:inherit;color:var(--ink);background:#fff}
+  textarea{min-height:58px;resize:vertical}
+  .outs{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+  .outs label{display:inline-flex;align-items:center;gap:5px;margin:0;padding:8px 11px;border:1px solid var(--line);
+        border-radius:20px;font-size:13px;text-transform:none;letter-spacing:0;cursor:pointer;color:var(--ink);font-weight:500}
+  .outs input{accent-color:var(--orange)}
+  .outs label:has(input:checked){border-color:var(--orange);background:#FDF2E4}
+  .acts{display:flex;gap:8px;margin-top:16px}
+  .acts button{flex:1;padding:11px;border:0;border-radius:8px;font-size:14.5px;font-weight:600;cursor:pointer}
+  .acts .cancel{background:#EDF1F2;color:var(--grey)}
+  .acts .save{background:var(--green);color:#fff}
+  .hint{font-size:11.5px;color:var(--grey);margin-top:4px}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Giro di chiamate</h1>
+  <span class="who" id="who"></span>
+  <button id="out" hidden>Esci</button>
+</header>
+
+<!-- ------------------------------------------------ login -->
+<section class="gate" id="gate" hidden>
+  <h2>Accesso staff</h2>
+  <p>Inserisci la tua email: ti arriva un link, ci clicchi e sei dentro. Nessuna password.</p>
+  <input id="email" type="email" inputmode="email" autocomplete="email" placeholder="nome@esempio.com">
+  <button id="send">Mandami il link</button>
+  <div class="msg" id="gmsg"></div>
+</section>
+
+<!-- ------------------------------------------------ app -->
+<main id="app" hidden><div class="wrap">
+  <div class="stats" id="stats"></div>
+  <div class="filters">
+    <select id="fWave"></select>
+    <select id="fZone"></select>
+    <select id="fState">
+      <option value="">Tutti gli stati</option>
+      <option value="da_chiamare">Da chiamare</option>
+      <option value="richiamare">Da richiamare</option>
+      <option value="scaduti">Richiami scaduti</option>
+      <option value="si">Sì</option>
+      <option value="no">No</option>
+      <option value="non_risponde">Non risponde</option>
+    </select>
+    <input id="fText" type="search" placeholder="Cerca nome o zona">
+  </div>
+  <ul id="list"></ul>
+  <div class="empty" id="empty" hidden>Nessun locale con questi filtri.</div>
+</div></main>
+
+<!-- ------------------------------------------------ esito -->
+<dialog id="dlg">
+  <div class="dh" id="dlgTitle"></div>
+  <form class="body" id="frm" method="dialog">
+    <label>Esito</label>
+    <div class="outs">
+      <label><input type="radio" name="outcome" value="si">Sì</label>
+      <label><input type="radio" name="outcome" value="richiamare" checked>Richiamare</label>
+      <label><input type="radio" name="outcome" value="no">No</label>
+      <label><input type="radio" name="outcome" value="non_risponde">Non risponde</label>
+      <label><input type="radio" name="outcome" value="numero_errato">Numero errato</label>
+    </div>
+
+    <label>Chi ha risposto</label>
+    <input type="text" name="answered_by" placeholder="nome, o «cameriere»">
+
+    <label>Persona giusta da ricontattare</label>
+    <input type="text" name="contact_name" placeholder="ALESSANDRO">
+
+    <label>Quando la si trova</label>
+    <input type="text" name="found_when" placeholder="mar-gio mattina">
+
+    <label>Giorno e ora del richiamo</label>
+    <input type="datetime-local" name="callback_at">
+    <div class="hint">Si esce sempre con una data. Mai «ci sentiamo».</div>
+
+    <label>Orari tranquilli → recommended time</label>
+    <input type="text" name="quiet_hours" placeholder="mar-gio 15:00-17:00">
+
+    <label>Quanti italiani, e in quali turni</label>
+    <input type="text" name="italian_staff" placeholder="2 su 5, turno serale">
+
+    <label>Obiezione o condizione</label>
+    <input type="text" name="objection" placeholder="«mandatemi una mail»">
+
+    <label>Note</label>
+    <textarea name="notes"></textarea>
+
+    <div class="acts">
+      <button type="button" class="cancel" id="cancel">Annulla</button>
+      <button type="button" class="save" id="save">Salva</button>
+    </div>
+    <div class="msg" id="fmsg"></div>
+  </form>
+</dialog>
+
+<script type="module">
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+const SB_URL = 'https://jsthwwsxbcianujrjfzt.supabase.co';
+const SB_KEY = 'sb_publishable_9MytZ3jSqIo2QqL8h2573A_sW_vSGv2';
+const sb = createClient(SB_URL, SB_KEY);
+
+const $ = id => document.getElementById(id);
+const DAYS = ['sun','mon','tue','wed','thu','fri','sat'];
+const DAY_IT = ['domenica','lunedì','martedì','mercoledì','giovedì','venerdì','sabato'];
+const OUT_IT = { si:'Sì', richiamare:'Richiamare', no:'No',
+                 non_risponde:'Non risponde', numero_errato:'Numero errato' };
+
+let ROWS = [], CURRENT = null;
+
+/* ---------------------------------------------------------------- login */
+$('send').addEventListener('click', async () => {
+  const email = $('email').value.trim();
+  const m = $('gmsg');
+  if (!email) { m.className = 'msg err'; m.textContent = 'Serve l’email.'; return; }
+  $('send').disabled = true;
+  const { error } = await sb.auth.signInWithOtp({
+    email,
+    options: { emailRedirectTo: location.origin + location.pathname }
+  });
+  $('send').disabled = false;
+  if (error) { m.className = 'msg err'; m.textContent = error.message; return; }
+  m.className = 'msg ok';
+  m.textContent = 'Link mandato a ' + email + '. Aprilo sullo stesso telefono. Se non arriva entro due minuti, guarda nello spam.';
+});
+
+$('out').addEventListener('click', async () => { await sb.auth.signOut(); location.reload(); });
+
+/* ---------------------------------------------------------------- boot */
+async function boot() {
+  const { data:{ session } } = await sb.auth.getSession();
+  if (!session) { $('gate').hidden = false; $('app').hidden = true; $('out').hidden = true; return; }
+  $('gate').hidden = true; $('out').hidden = false;
+  $('who').textContent = session.user.email;
+  await load();
+}
+
+async function load() {
+  const [v, c, k] = await Promise.all([
+    sb.from('venues').select('id,name,venue_type,area,borough,address,best_time,best_hours')
+      .eq('is_active', true).order('name'),
+    sb.from('venue_contacts').select('*'),
+    sb.from('calls').select('*').order('called_at', { ascending:false })
+  ]);
+
+  if (v.error || c.error || k.error) {
+    const e = v.error || c.error || k.error;
+    $('gate').hidden = false;
+    $('gmsg').className = 'msg err';
+    $('gmsg').textContent =
+      'Questo account non è abilitato, oppure le tabelle non esistono ancora. (' + e.message + ')';
+    return;
+  }
+
+  const byVenue = {}; c.data.forEach(x => byVenue[x.venue_id] = x);
+  const last = {}, hist = {};
+  k.data.forEach(x => { if (!last[x.venue_id]) last[x.venue_id] = x;
+                        (hist[x.venue_id] = hist[x.venue_id] || []).push(x); });
+
+  ROWS = v.data.map(x => ({ v:x, c:byVenue[x.id] || {}, last:last[x.id] || null,
+                            n:(hist[x.id] || []).length }));
+  buildFilters();
+  render();
+  $('app').hidden = false;
+}
+
+/* ---------------------------------------------------------------- helpers */
+function closedToday(bh) {
+  if (!bh) return false;
+  const d = DAYS[new Date().getDay()];
+  const slot = bh[d];
+  return !slot || (Array.isArray(slot) && slot.length === 0);
+}
+function state(r) {
+  if (!r.last) return 'da_chiamare';
+  return r.last.outcome;
+}
+function overdue(r) {
+  return r.last && r.last.outcome === 'richiamare' && r.last.callback_at &&
+         new Date(r.last.callback_at) <= new Date();
+}
+function fmt(ts) {
+  if (!ts) return '';
+  const d = new Date(ts);
+  return d.toLocaleString('it-IT', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
+}
+function uniq(a) { return [...new Set(a.filter(Boolean))].sort(); }
+
+function buildFilters() {
+  const w = $('fWave'), z = $('fZone');
+  if (w.options.length) return;
+  w.innerHTML = '<option value="">Tutte le onde</option>' +
+    uniq(ROWS.map(r => r.c.wave)).map(x => `<option>${x}</option>`).join('');
+  z.innerHTML = '<option value="">Tutte le zone</option>' +
+    uniq(ROWS.map(r => r.c.zone || r.v.area)).map(x => `<option>${x}</option>`).join('');
+  ['fWave','fZone','fState','fText'].forEach(id => $(id).addEventListener('input', render));
+}
+
+/* ---------------------------------------------------------------- render */
+function render() {
+  const w = $('fWave').value, z = $('fZone').value, st = $('fState').value,
+        q = $('fText').value.trim().toLowerCase();
+
+  const list = ROWS.filter(r => {
+    if (w && r.c.wave !== w) return false;
+    if (z && (r.c.zone || r.v.area) !== z) return false;
+    if (st === 'scaduti') { if (!overdue(r)) return false; }
+    else if (st && state(r) !== st) return false;
+    if (q && !((r.v.name + ' ' + (r.v.area||'') + ' ' + (r.c.zone||'') + ' ' +
+                (r.c.postcode||'')).toLowerCase().includes(q))) return false;
+    return true;
+  });
+
+  const n = s => ROWS.filter(r => state(r) === s).length;
+  $('stats').innerHTML = [
+    ['Da chiamare', n('da_chiamare'), 'due'],
+    ['Richiami scaduti', ROWS.filter(overdue).length, 'due'],
+    ['Sì', n('si'), ''],
+    ['No', n('no'), ''],
+    ['Totale', ROWS.length, '']
+  ].map(([l, v, c]) => `<div class="stat ${c}"><b>${v}</b><span>${l}</span></div>`).join('');
+
+  $('empty').hidden = list.length > 0;
+  $('list').innerHTML = list.map(card).join('');
+  $('list').querySelectorAll('button[data-id]').forEach(b =>
+    b.addEventListener('click', () => openDlg(+b.dataset.id)));
+}
+
+function card(r) {
+  const c = r.c, v = r.v, s = state(r), chiuso = closedToday(v.best_hours);
+  const tags = [];
+  if (c.wave)         tags.push(`<span class="tag">${c.wave}</span>`);
+  if (c.score != null)tags.push(`<span class="tag">punti ${c.score}</span>`);
+  if (c.call_window)  tags.push(`<span class="tag">☎ ${c.call_window} <small>ora IT</small></span>`);
+  if (chiuso)         tags.push(`<span class="tag bad">chiuso ${DAY_IT[new Date().getDay()]}</span>`);
+  if (overdue(r))     tags.push(`<span class="tag warn">richiamo scaduto</span>`);
+  if (s === 'si')     tags.push(`<span class="tag good">ha detto sì</span>`);
+  if (!c.phone)       tags.push(`<span class="tag bad">numero mancante</span>`);
+
+  const who = c.contact_name ? ` · chiedi di <b>${c.contact_name}</b>` : '';
+  const when = c.found_when ? ` (${c.found_when})` : '';
+
+  return `<li class="v ${s} ${chiuso ? 'chiusooggi' : ''}">
+    <div class="vh"><span class="nm">${v.name}</span>
+      <span class="sc">${c.postcode || v.area || ''}</span></div>
+    <div class="meta">${v.venue_type} · ${v.area || v.borough || ''}${who}${when}</div>
+    ${v.best_time ? `<div class="meta">${v.best_time}</div>` : ''}
+    <div class="tags">${tags.join('')}</div>
+    <div class="row">
+      ${c.phone
+        ? `<a class="call" href="tel:${c.phone.replace(/\s/g,'')}">Chiama ${c.phone}</a>`
+        : `<a class="call off">Numero mancante</a>`}
+      <button class="log" data-id="${v.id}">Registra esito</button>
+    </div>
+    ${r.last ? `<div class="hist">Ultima: <b>${OUT_IT[r.last.outcome]}</b> il ${fmt(r.last.called_at)}${
+        r.last.callback_at ? ` · richiamo ${fmt(r.last.callback_at)}` : ''}${
+        r.n > 1 ? ` · ${r.n} chiamate` : ''}</div>` : ''}
+  </li>`;
+}
+
+/* ---------------------------------------------------------------- dialog */
+function openDlg(id) {
+  CURRENT = ROWS.find(r => r.v.id === id);
+  $('dlgTitle').textContent = CURRENT.v.name;
+  const f = $('frm');
+  f.reset();
+  f.contact_name.value = CURRENT.c.contact_name || '';
+  f.found_when.value   = CURRENT.c.found_when || '';
+  $('fmsg').className = 'msg';
+  $('dlg').showModal();
+}
+$('cancel').addEventListener('click', () => $('dlg').close());
+
+$('save').addEventListener('click', async () => {
+  const f = $('frm'), m = $('fmsg');
+  const val = k => (f[k].value || '').trim() || null;
+  const row = {
+    venue_id: CURRENT.v.id,
+    outcome:  f.outcome.value,
+    answered_by:  val('answered_by'),
+    contact_name: val('contact_name'),
+    found_when:   val('found_when'),
+    callback_at:  f.callback_at.value ? new Date(f.callback_at.value).toISOString() : null,
+    quiet_hours:  val('quiet_hours'),
+    italian_staff:val('italian_staff'),
+    objection:    val('objection'),
+    notes:        val('notes')
+  };
+  if (row.outcome === 'richiamare' && !row.callback_at) {
+    m.className = 'msg err';
+    m.textContent = 'Un «richiamare» senza data è una telefonata persa. Metti giorno e ora.';
+    return;
+  }
+  $('save').disabled = true;
+  const { error } = await sb.from('calls').insert(row);
+  $('save').disabled = false;
+  if (error) { m.className = 'msg err'; m.textContent = error.message; return; }
+
+  // il nome della persona e quando si trova restano sulla scheda del locale
+  if (row.contact_name || row.found_when) {
+    await sb.from('venue_contacts').upsert({
+      venue_id: CURRENT.v.id,
+      contact_name: row.contact_name || CURRENT.c.contact_name || null,
+      found_when:   row.found_when   || CURRENT.c.found_when   || null,
+      updated_at: new Date().toISOString()
+    }, { onConflict: 'venue_id' });
+  }
+  $('dlg').close();
+  await load();
+});
+
+sb.auth.onAuthStateChange(() => boot());
+boot();
+</script>
+</body>
+</html>
