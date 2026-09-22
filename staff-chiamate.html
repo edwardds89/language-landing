@@ -54,9 +54,10 @@
   ul{list-style:none;margin:0;padding:0}
   li.v{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--line);
        border-radius:10px;padding:11px 12px;margin-bottom:9px}
-  li.v.si{border-left-color:var(--green)}
-  li.v.no{border-left-color:#C3CED2}
+  li.v.si{border-left-color:var(--green);background:#F2F9F5}
+  li.v.no{border-left-color:var(--red);background:#FDF4F3}
   li.v.richiamare{border-left-color:var(--orange)}
+  li.v.non_risponde,li.v.numero_errato{border-left-color:#9FB0B6}
   li.v.chiusooggi{opacity:.55}
   .vh{display:flex;align-items:baseline;gap:8px}
   .vh .nm{font-weight:700;font-size:15px;color:var(--navy);flex:1}
@@ -74,6 +75,10 @@
   .call.off{background:#E4EAEC;color:#93A3A9;pointer-events:none}
   .log{background:var(--orange);color:#fff}
   .hist{margin-top:7px;font-size:11.5px;color:var(--grey)}
+  .det{margin-top:7px;font-size:12px;line-height:1.55;color:var(--ink);
+       background:rgba(255,255,255,.75);border:1px solid var(--line);border-radius:7px;padding:7px 9px}
+  .det .k{color:var(--grey);font-size:10px;text-transform:uppercase;letter-spacing:.4px;margin-right:4px}
+  .det b{color:var(--navy)}
   .empty{text-align:center;color:var(--grey);padding:40px 10px;font-size:14px}
 
   /* ---- dialog ---- */
@@ -191,6 +196,8 @@ const SB_KEY = 'sb_publishable_9MytZ3jSqIo2QqL8h2573A_sW_vSGv2';
 const sb = createClient(SB_URL, SB_KEY);
 
 const $ = id => document.getElementById(id);
+const esc = v => String(v==null?'':v).replace(/[&<>"]/g, c =>
+  ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const DAYS = ['sun','mon','tue','wed','thu','fri','sat'];
 const DAY_IT = ['domenica','lunedì','martedì','mercoledì','giovedì','venerdì','sabato'];
 const OUT_IT = { si:'Sì', richiamare:'Richiamare', no:'No',
@@ -243,12 +250,18 @@ async function load() {
   }
 
   const byVenue = {}; c.data.forEach(x => byVenue[x.venue_id] = x);
-  const last = {}, hist = {};
-  k.data.forEach(x => { if (!last[x.venue_id]) last[x.venue_id] = x;
-                        (hist[x.venue_id] = hist[x.venue_id] || []).push(x); });
+  const last = {}, hist = {}, info = {};
+  const KEEP = ['answered_by','contact_name','found_when','quiet_hours',
+                'italian_staff','objection','notes'];
+  k.data.forEach(x => {                       // le chiamate arrivano dalla piu' recente
+    if (!last[x.venue_id]) last[x.venue_id] = x;
+    (hist[x.venue_id] = hist[x.venue_id] || []).push(x);
+    const acc = info[x.venue_id] = info[x.venue_id] || {};
+    KEEP.forEach(f => { if (acc[f] == null && x[f]) acc[f] = x[f]; });
+  });
 
   ROWS = v.data.map(x => ({ v:x, c:byVenue[x.id] || {}, last:last[x.id] || null,
-                            n:(hist[x.id] || []).length }));
+                            info:info[x.id] || {}, n:(hist[x.id] || []).length }));
   buildFilters();
   render();
   $('app').hidden = false;
@@ -317,34 +330,46 @@ function render() {
 }
 
 function card(r) {
-  const c = r.c, v = r.v, s = state(r), chiuso = closedToday(v.best_hours);
+  const c = r.c, v = r.v, i = r.info || {}, s = state(r), chiuso = closedToday(v.best_hours);
   const tags = [];
-  if (c.wave)         tags.push(`<span class="tag">${c.wave}</span>`);
+  if (c.wave === 'ferie') tags.push(`<span class="tag warn">ferie · riconfermare</span>`);
+  else if (c.wave)    tags.push(`<span class="tag">${esc(c.wave)}</span>`);
   if (c.score != null)tags.push(`<span class="tag">punti ${c.score}</span>`);
-  if (c.call_window)  tags.push(`<span class="tag">☎ ${c.call_window} <small>ora IT</small></span>`);
+  if (c.call_window)  tags.push(`<span class="tag">&#9742; ${esc(c.call_window)} <small>ora IT</small></span>`);
   if (chiuso)         tags.push(`<span class="tag bad">chiuso ${DAY_IT[new Date().getDay()]}</span>`);
   if (overdue(r))     tags.push(`<span class="tag warn">richiamo scaduto</span>`);
-  if (s === 'si')     tags.push(`<span class="tag good">ha detto sì</span>`);
+  if (s === 'si')     tags.push(`<span class="tag good">HA DETTO S&Igrave;</span>`);
+  if (s === 'no')     tags.push(`<span class="tag bad">HA DETTO NO</span>`);
   if (!c.phone)       tags.push(`<span class="tag bad">numero mancante</span>`);
 
-  const who = c.contact_name ? ` · chiedi di <b>${c.contact_name}</b>` : '';
-  const when = c.found_when ? ` (${c.found_when})` : '';
+  const nome = c.contact_name || i.contact_name;
+  const when = c.found_when || i.found_when;
+  const who  = nome ? ` &middot; chiedi di <b>${esc(nome)}</b>` : '';
+  const wh   = when ? ` (${esc(when)})` : '';
+
+  const det = [];
+  if (i.quiet_hours)   det.push(`<span class="k">orari tranquilli</span><b>${esc(i.quiet_hours)}</b>`);
+  if (i.italian_staff) det.push(`<span class="k">italiani</span><b>${esc(i.italian_staff)}</b>`);
+  if (i.answered_by)   det.push(`<span class="k">ha risposto</span>${esc(i.answered_by)}`);
+  if (i.objection)     det.push(`<span class="k">obiezione</span>${esc(i.objection)}`);
+  if (i.notes)         det.push(`<span class="k">note</span>${esc(i.notes)}`);
 
   return `<li class="v ${s} ${chiuso ? 'chiusooggi' : ''}">
-    <div class="vh"><span class="nm">${v.name}</span>
-      <span class="sc">${c.postcode || v.area || ''}</span></div>
-    <div class="meta">${v.venue_type} · ${v.area || v.borough || ''}${who}${when}</div>
-    ${v.best_time ? `<div class="meta">${v.best_time}</div>` : ''}
+    <div class="vh"><span class="nm">${esc(v.name)}</span>
+      <span class="sc">${esc(c.postcode || v.area || '')}</span></div>
+    <div class="meta">${esc(v.venue_type)} &middot; ${esc(v.area || v.borough || '')}${who}${wh}</div>
+    ${v.best_time ? `<div class="meta">${esc(v.best_time)}</div>` : ''}
     <div class="tags">${tags.join('')}</div>
     <div class="row">
       ${c.phone
-        ? `<a class="call" href="tel:${c.phone.replace(/\s/g,'')}">Chiama ${c.phone}</a>`
+        ? `<a class="call" href="tel:${esc(c.phone.replace(/\s/g,''))}">Chiama ${esc(c.phone)}</a>`
         : `<a class="call off">Numero mancante</a>`}
       <button class="log" data-id="${v.id}">Registra esito</button>
     </div>
     ${r.last ? `<div class="hist">Ultima: <b>${OUT_IT[r.last.outcome]}</b> il ${fmt(r.last.called_at)}${
-        r.last.callback_at ? ` · richiamo ${fmt(r.last.callback_at)}` : ''}${
-        r.n > 1 ? ` · ${r.n} chiamate` : ''}</div>` : ''}
+        r.last.callback_at ? ` &middot; richiamo ${fmt(r.last.callback_at)}` : ''}${
+        r.n > 1 ? ` &middot; ${r.n} chiamate` : ''}</div>` : ''}
+    ${det.length ? `<div class="det">${det.join('<br>')}</div>` : ''}
   </li>`;
 }
 
@@ -353,9 +378,12 @@ function openDlg(id) {
   CURRENT = ROWS.find(r => r.v.id === id);
   $('dlgTitle').textContent = CURRENT.v.name;
   const f = $('frm');
+  const i = CURRENT.info || {};
   f.reset();
-  f.contact_name.value = CURRENT.c.contact_name || '';
-  f.found_when.value   = CURRENT.c.found_when || '';
+  f.contact_name.value  = CURRENT.c.contact_name || i.contact_name || '';
+  f.found_when.value    = CURRENT.c.found_when   || i.found_when   || '';
+  f.quiet_hours.value   = i.quiet_hours   || '';
+  f.italian_staff.value = i.italian_staff || '';
   $('fmsg').className = 'msg';
   $('dlg').showModal();
 }
