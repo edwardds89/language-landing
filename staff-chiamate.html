@@ -44,7 +44,12 @@
   /* ---- stats ---- */
   .stats{display:flex;gap:6px;overflow-x:auto;margin-bottom:10px;-webkit-overflow-scrolling:touch}
   .stat{flex:0 0 auto;background:var(--card);border:1px solid var(--line);border-radius:9px;
-        padding:7px 11px;text-align:center;min-width:78px}
+        padding:7px 11px;text-align:center;min-width:78px;font:inherit;cursor:pointer;
+        -webkit-tap-highlight-color:transparent}
+  .stat:active{transform:scale(.97)}
+  .stat.on{border-color:var(--navy);box-shadow:inset 0 0 0 1.5px var(--navy)}
+  .stat.si b{color:#2E7D4F}
+  .stat.no b{color:#B03A2B}
   .stat b{display:block;font-size:18px;line-height:1.1;color:var(--navy)}
   .stat span{font-size:10.5px;color:var(--grey);text-transform:uppercase;letter-spacing:.4px}
   .stat.due b{color:var(--orange)}
@@ -220,6 +225,16 @@ const esc = v => String(v==null?'':v).replace(/[&<>"]/g, c =>
   ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const DAYS = ['sun','mon','tue','wed','thu','fri','sat'];
 const DAY_IT = ['domenica','lunedì','martedì','mercoledì','giovedì','venerdì','sabato'];
+const WAVE = {
+  onda1:        ['Onda 1', 'i pi\u00f9 promettenti'],
+  onda2:        ['Onda 2', 'molto probabili'],
+  onda3:        ['Onda 3', 'probabili'],
+  riserva:      ['Riserva', 'da provare dopo'],
+  senza_numero: ['Senza telefono', 'visita di persona'],
+  ferie:        ['Ferie', 'da riconfermare']
+};
+const WAVE_ORDER = ['onda1','onda2','onda3','riserva','senza_numero','ferie'];
+
 const OUT_IT = { si:'Sì', richiamare:'Richiamare', no:'No',
                  non_risponde:'Non risponde', numero_errato:'Numero errato' };
 
@@ -300,8 +315,8 @@ async function load() {
 
   const byVenue = {}; c.data.forEach(x => byVenue[x.venue_id] = x);
   const last = {}, hist = {}, info = {};
-  const KEEP = ['answered_by','contact_name','found_when','quiet_hours',
-                'italian_staff','objection','notes'];
+  // questi sono fatti del LOCALE: restano validi da una chiamata all'altra
+  const KEEP = ['contact_name','found_when','quiet_hours','italian_staff'];
   k.data.forEach(x => {                       // le chiamate arrivano dalla piu' recente
     if (!last[x.venue_id]) last[x.venue_id] = x;
     (hist[x.venue_id] = hist[x.venue_id] || []).push(x);
@@ -341,9 +356,12 @@ function uniq(a) { return [...new Set(a.filter(Boolean))].sort(); }
 function buildFilters() {
   const w = $('fWave'), z = $('fZone');
   if (w.options.length) return;
-  w.innerHTML = '<option value="">Tutte le onde</option>' +
-    uniq(ROWS.map(r => r.c.wave)).map(x => `<option>${x}</option>`).join('');
-  z.innerHTML = '<option value="">Tutte le zone</option>' +
+  const presenti = WAVE_ORDER.filter(k => ROWS.some(r => r.c.wave === k));
+  w.innerHTML = '<option value="">Tutte le priorit\u00e0</option>' + presenti.map(k => {
+    const n = ROWS.filter(r => r.c.wave === k).length;
+    return `<option value="${k}">${WAVE[k][0]} &mdash; ${WAVE[k][1]} (${n})</option>`;
+  }).join('');
+  z.innerHTML = '<option value="">Tutte le zone di Londra</option>' +
     uniq(ROWS.map(r => r.c.zone || r.v.area)).map(x => `<option>${x}</option>`).join('');
   ['fWave','fZone','fState','fText'].forEach(id => $(id).addEventListener('input', render));
 }
@@ -365,12 +383,16 @@ function render() {
 
   const n = s => ROWS.filter(r => state(r) === s).length;
   $('stats').innerHTML = [
-    ['Da chiamare', n('da_chiamare'), 'due'],
-    ['Richiami scaduti', ROWS.filter(overdue).length, 'due'],
-    ['Sì', n('si'), ''],
-    ['No', n('no'), ''],
-    ['Totale', ROWS.length, '']
-  ].map(([l, v, c]) => `<div class="stat ${c}"><b>${v}</b><span>${l}</span></div>`).join('');
+    ['Da chiamare',      n('da_chiamare'),            'due', 'da_chiamare'],
+    ['Richiami scaduti', ROWS.filter(overdue).length,  'due', 'scaduti'],
+    ['Hanno detto sì', n('si'),                      'si',  'si'],
+    ['Hanno detto no',   n('no'),                      'no',  'no'],
+    ['Tutti',            ROWS.length,                  '',    '']
+  ].map(([l, v, c, k]) =>
+    `<button class="stat ${c} ${st === k ? 'on' : ''}" data-st="${k}"><b>${v}</b><span>${l}</span></button>`
+  ).join('');
+  $('stats').querySelectorAll('button[data-st]').forEach(b =>
+    b.addEventListener('click', () => { $('fState').value = b.dataset.st; render(); }));
 
   $('empty').hidden = list.length > 0;
   $('list').innerHTML = list.map(card).join('');
@@ -384,7 +406,7 @@ function card(r) {
   const c = r.c, v = r.v, i = r.info || {}, s = state(r), chiuso = closedToday(v.best_hours);
   const tags = [];
   if (c.wave === 'ferie') tags.push(`<span class="tag warn">ferie · riconfermare</span>`);
-  else if (c.wave)    tags.push(`<span class="tag">${esc(c.wave)}</span>`);
+  else if (c.wave)    tags.push(`<span class="tag">${WAVE[c.wave] ? WAVE[c.wave][0] : esc(c.wave)}</span>`);
   if (c.score != null)tags.push(`<span class="tag">punti ${c.score}</span>`);
   if (c.call_window)  tags.push(`<span class="tag">&#9742; ${esc(c.call_window)} <small>ora IT</small></span>`);
   if (chiuso)         tags.push(`<span class="tag bad">chiuso ${DAY_IT[new Date().getDay()]}</span>`);
@@ -399,11 +421,14 @@ function card(r) {
   const wh   = when ? ` (${esc(when)})` : '';
 
   const det = [];
+  // fatti del locale: valgono finche' qualcuno non li riscrive
   if (i.quiet_hours)   det.push(`<span class="k">orari tranquilli</span><b>${esc(i.quiet_hours)}</b>`);
   if (i.italian_staff) det.push(`<span class="k">italiani</span><b>${esc(i.italian_staff)}</b>`);
-  if (i.answered_by)   det.push(`<span class="k">ha risposto</span>${esc(i.answered_by)}`);
-  if (i.objection)     det.push(`<span class="k">obiezione</span>${esc(i.objection)}`);
-  if (i.notes)         det.push(`<span class="k">note</span>${esc(i.notes)}`);
+  // roba dell'ultima telefonata soltanto
+  const L = r.last || {};
+  if (L.answered_by)   det.push(`<span class="k">ultima chiamata &middot; ha risposto</span>${esc(L.answered_by)}`);
+  if (L.objection)     det.push(`<span class="k">ultima chiamata &middot; obiezione</span>${esc(L.objection)}`);
+  if (L.notes)         det.push(`<span class="k">ultima chiamata &middot; note</span>${esc(L.notes)}`);
 
   return `<li class="v ${s} ${chiuso ? 'chiusooggi' : ''}">
     <div class="vh"><span class="nm">${esc(v.name)}</span>
