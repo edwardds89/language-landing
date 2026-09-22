@@ -33,6 +33,10 @@
   .gate input{width:100%;padding:11px;border:1px solid var(--line);border-radius:8px;font-size:16px}
   .gate button{width:100%;margin-top:10px;padding:12px;border:0;border-radius:8px;
                background:var(--orange);color:#fff;font-size:15px;font-weight:600;cursor:pointer}
+  .gate input.code{text-align:center;font-size:30px;letter-spacing:10px;font-weight:700;
+        padding:14px 10px;color:var(--navy);font-variant-numeric:tabular-nums}
+  .gate button.link{background:none;color:var(--grey);font-size:12.5px;font-weight:500;
+        text-decoration:underline;padding:8px 0;margin-top:6px}
   .msg{margin-top:12px;font-size:13px;padding:10px;border-radius:8px;display:none}
   .msg.ok{display:block;background:#EAF3EE;color:#2F5F45}
   .msg.err{display:block;background:#FBEDEB;color:#8C342A}
@@ -122,9 +126,18 @@
 <!-- ------------------------------------------------ login -->
 <section class="gate" id="gate" hidden>
   <h2>Accesso staff</h2>
-  <p>Inserisci la tua email: ti arriva un link, ci clicchi e sei dentro. Nessuna password.</p>
-  <input id="email" type="email" inputmode="email" autocomplete="email" placeholder="nome@esempio.com">
-  <button id="send">Mandami il link</button>
+  <div id="step1">
+    <p>Inserisci la tua email: ti arriva un codice di sei cifre. Nessuna password.</p>
+    <input id="email" type="email" inputmode="email" autocomplete="email" placeholder="nome@esempio.com">
+    <button id="send">Mandami il codice</button>
+  </div>
+  <div id="step2" hidden>
+    <p>Scrivi qui le sei cifre arrivate a <b id="dest"></b>.</p>
+    <input id="code" class="code" type="text" inputmode="numeric" autocomplete="one-time-code"
+           maxlength="6" placeholder="000000">
+    <button id="enter">Entra</button>
+    <button id="again" class="link">Cambia email o rimanda il codice</button>
+  </div>
   <div class="msg" id="gmsg"></div>
 </section>
 
@@ -213,19 +226,48 @@ const OUT_IT = { si:'Sì', richiamare:'Richiamare', no:'No',
 let ROWS = [], CURRENT = null;
 
 /* ---------------------------------------------------------------- login */
+let EMAIL = '';
+
 $('send').addEventListener('click', async () => {
   const email = $('email').value.trim();
   const m = $('gmsg');
-  if (!email) { m.className = 'msg err'; m.textContent = 'Serve l’email.'; return; }
+  if (!email) { m.className = 'msg err'; m.textContent = 'Serve l\u2019email.'; return; }
   $('send').disabled = true;
-  const { error } = await sb.auth.signInWithOtp({
-    email,
-    options: { emailRedirectTo: location.origin + location.pathname }
-  });
+  const { error } = await sb.auth.signInWithOtp({ email, options: { shouldCreateUser: true } });
   $('send').disabled = false;
   if (error) { m.className = 'msg err'; m.textContent = error.message; return; }
+  EMAIL = email;
+  $('dest').textContent = email;
+  $('step1').hidden = true;
+  $('step2').hidden = false;
   m.className = 'msg ok';
-  m.textContent = 'Link mandato a ' + email + '. Aprilo sullo stesso telefono. Se non arriva entro due minuti, guarda nello spam.';
+  m.textContent = 'Codice mandato. Vale una volta sola e scade dopo un\u2019ora. Se non arriva entro due minuti, guarda nello spam.';
+  setTimeout(() => $('code').focus(), 100);
+});
+
+$('enter').addEventListener('click', async () => {
+  const token = $('code').value.replace(/\D/g, '');
+  const m = $('gmsg');
+  if (token.length !== 6) { m.className = 'msg err'; m.textContent = 'Il codice \u00e8 di sei cifre.'; return; }
+  $('enter').disabled = true;
+  const { error } = await sb.auth.verifyOtp({ email: EMAIL, token, type: 'email' });
+  $('enter').disabled = false;
+  if (error) {
+    m.className = 'msg err';
+    m.textContent = 'Codice non valido o scaduto. Chiedine un altro.';
+    $('code').value = '';
+    return;
+  }
+  m.className = 'msg'; m.textContent = '';
+  await boot();
+});
+
+$('code').addEventListener('keydown', e => { if (e.key === 'Enter') $('enter').click(); });
+$('email').addEventListener('keydown', e => { if (e.key === 'Enter') $('send').click(); });
+
+$('again').addEventListener('click', () => {
+  $('step2').hidden = true; $('step1').hidden = false;
+  $('code').value = ''; $('gmsg').className = 'msg'; $('gmsg').textContent = '';
 });
 
 $('out').addEventListener('click', async () => { await sb.auth.signOut(); location.reload(); });
