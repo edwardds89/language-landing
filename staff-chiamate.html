@@ -54,8 +54,10 @@
   ul{list-style:none;margin:0;padding:0}
   li.v{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--line);
        border-radius:10px;padding:11px 12px;margin-bottom:9px}
-  li.v.si{border-left-color:var(--green);background:#F2F9F5}
-  li.v.no{border-left-color:var(--red);background:#FDF4F3}
+  li.v.si{border-left-color:#2E7D4F;border-left-width:7px;background:#E3F3E9;
+          border-color:#BFE0CC;border-left-color:#2E7D4F}
+  li.v.no{border-left-color:#B03A2B;border-left-width:7px;background:#FBE9E6;
+          border-color:#EFC9C2;border-left-color:#B03A2B}
   li.v.richiamare{border-left-color:var(--orange)}
   li.v.non_risponde,li.v.numero_errato{border-left-color:#9FB0B6}
   li.v.chiusooggi{opacity:.55}
@@ -68,6 +70,8 @@
   .tag.warn{background:#FCEEDD;color:#8A5410}
   .tag.bad{background:#FBEDEB;color:#8C342A}
   .tag.good{background:#EAF3EE;color:#2F5F45}
+  .tag.stamp-si{background:#2E7D4F;color:#fff;font-weight:800;letter-spacing:.5px;font-size:11px;padding:3px 10px}
+  .tag.stamp-no{background:#B03A2B;color:#fff;font-weight:800;letter-spacing:.5px;font-size:11px;padding:3px 10px}
   .row{display:flex;gap:7px;margin-top:9px}
   .row a,.row button{flex:1;text-align:center;padding:9px;border-radius:8px;font-size:13.5px;
         font-weight:600;text-decoration:none;border:0;cursor:pointer}
@@ -343,8 +347,8 @@ function card(r) {
   if (c.call_window)  tags.push(`<span class="tag">&#9742; ${esc(c.call_window)} <small>ora IT</small></span>`);
   if (chiuso)         tags.push(`<span class="tag bad">chiuso ${DAY_IT[new Date().getDay()]}</span>`);
   if (overdue(r))     tags.push(`<span class="tag warn">richiamo scaduto</span>`);
-  if (s === 'si')     tags.push(`<span class="tag good">HA DETTO S&Igrave;</span>`);
-  if (s === 'no')     tags.push(`<span class="tag bad">HA DETTO NO</span>`);
+  if (s === 'si')     tags.push(`<span class="tag stamp-si">HA DETTO S&Igrave;</span>`);
+  if (s === 'no')     tags.push(`<span class="tag stamp-no">HA DETTO NO</span>`);
   if (!c.phone)       tags.push(`<span class="tag bad">numero mancante</span>`);
 
   const nome = c.contact_name || i.contact_name;
@@ -369,7 +373,7 @@ function card(r) {
       ${c.phone
         ? `<a class="call" href="tel:${esc(c.phone.replace(/\s/g,''))}">Chiama ${esc(c.phone)}</a>`
         : `<a class="call off">Numero mancante</a>`}
-      <button class="log" data-id="${v.id}">Registra esito</button>
+      <button class="log" data-id="${v.id}">${r.last ? 'Modifica dettagli' : 'Registra esito'}</button>
     </div>
     ${r.last ? `<div class="hist">Ultima: <b>${OUT_IT[r.last.outcome]}</b> il ${fmt(r.last.called_at)}${
         r.last.callback_at ? ` &middot; richiamo ${fmt(r.last.callback_at)}` : ''}${
