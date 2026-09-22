@@ -156,7 +156,7 @@
       <option value="">Tutti gli stati</option>
       <option value="da_chiamare">Da chiamare</option>
       <option value="richiamare">Da richiamare</option>
-      <option value="scaduti">Richiami scaduti</option>
+      <option value="scaduti">Da richiamare ora</option>
       <option value="si">Sì</option>
       <option value="no">No</option>
       <option value="non_risponde">Non risponde</option>
@@ -189,7 +189,7 @@
     <label>Quando la si trova</label>
     <input type="text" name="found_when" placeholder="mar-gio mattina">
 
-    <label>Giorno e ora del richiamo</label>
+    <label>Giorno e ora del richiamo <span style="text-transform:none;letter-spacing:0">(ora italiana)</span></label>
     <input type="datetime-local" name="callback_at">
     <div class="hint">Si esce sempre con una data. Mai «ci sentiamo».</div>
 
@@ -346,6 +346,11 @@ function overdue(r) {
   return r.last && r.last.outcome === 'richiamare' && r.last.callback_at &&
          new Date(r.last.callback_at) <= new Date();
 }
+function toLocalInput(iso) {            // ISO -> valore per <input datetime-local>
+  if (!iso) return '';
+  const d = new Date(iso), p = n => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
+}
 function fmt(ts) {
   if (!ts) return '';
   const d = new Date(ts);
@@ -384,7 +389,7 @@ function render() {
   const n = s => ROWS.filter(r => state(r) === s).length;
   $('stats').innerHTML = [
     ['Da chiamare',      n('da_chiamare'),            'due', 'da_chiamare'],
-    ['Richiami scaduti', ROWS.filter(overdue).length,  'due', 'scaduti'],
+    ['Da richiamare ora', ROWS.filter(overdue).length, 'due', 'scaduti'],
     ['Hanno detto sì', n('si'),                      'si',  'si'],
     ['Hanno detto no',   n('no'),                      'no',  'no'],
     ['Tutti',            ROWS.length,                  '',    '']
@@ -415,8 +420,8 @@ function card(r) {
   if (s === 'no')     tags.push(`<span class="tag stamp-no">HA DETTO NO</span>`);
   if (!c.phone)       tags.push(`<span class="tag bad">numero mancante</span>`);
 
-  const nome = c.contact_name || i.contact_name;
-  const when = c.found_when || i.found_when;
+  const nome = (r.last && r.last.contact_name) || c.contact_name || i.contact_name;
+  const when = (r.last && r.last.found_when)   || c.found_when   || i.found_when;
   const who  = nome ? ` &middot; chiedi di <b>${esc(nome)}</b>` : '';
   const wh   = when ? ` (${esc(when)})` : '';
 
@@ -476,11 +481,21 @@ function openDlg(id) {
   $('dlgTitle').textContent = CURRENT.v.name;
   const f = $('frm');
   const i = CURRENT.info || {};
+  const L = CURRENT.last || {};
   f.reset();
-  f.contact_name.value  = CURRENT.c.contact_name || i.contact_name || '';
-  f.found_when.value    = CURRENT.c.found_when   || i.found_when   || '';
-  f.quiet_hours.value   = i.quiet_hours   || '';
-  f.italian_staff.value = i.italian_staff || '';
+  // il form riapre esattamente quello che c'e' scritto adesso: tutti i campi, nessuna eccezione
+  f.answered_by.value   = L.answered_by  || '';
+  f.contact_name.value  = L.contact_name  || CURRENT.c.contact_name || i.contact_name || '';
+  f.found_when.value    = L.found_when    || CURRENT.c.found_when   || i.found_when   || '';
+  f.callback_at.value   = toLocalInput(L.callback_at);
+  f.quiet_hours.value   = L.quiet_hours   || i.quiet_hours   || '';
+  f.italian_staff.value = L.italian_staff || i.italian_staff || '';
+  f.objection.value     = L.objection     || '';
+  f.notes.value         = L.notes         || '';
+  if (L.outcome) {
+    const r = f.querySelector(`input[name="outcome"][value="${L.outcome}"]`);
+    if (r) r.checked = true;
+  }
   $('fmsg').className = 'msg';
   $('dlg').showModal();
 }
@@ -511,15 +526,6 @@ $('save').addEventListener('click', async () => {
   $('save').disabled = false;
   if (error) { m.className = 'msg err'; m.textContent = error.message; return; }
 
-  // il nome della persona e quando si trova restano sulla scheda del locale
-  if (row.contact_name || row.found_when) {
-    await sb.from('venue_contacts').upsert({
-      venue_id: CURRENT.v.id,
-      contact_name: row.contact_name || CURRENT.c.contact_name || null,
-      found_when:   row.found_when   || CURRENT.c.found_when   || null,
-      updated_at: new Date().toISOString()
-    }, { onConflict: 'venue_id' });
-  }
   $('dlg').close();
   await load();
 });
