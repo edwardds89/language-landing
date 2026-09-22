@@ -55,6 +55,14 @@
   .stat.due b{color:var(--orange)}
 
   /* ---- filtri ---- */
+  .ghdr{list-style:none;display:flex;align-items:baseline;gap:8px;margin:18px 0 8px;
+        padding-bottom:5px;border-bottom:1px solid var(--line)}
+  .ghdr:first-child{margin-top:2px}
+  .ghdr b{font-size:13px;color:var(--navy);letter-spacing:.3px}
+  .ghdr span{flex:1 1 auto;font-size:11.5px;color:var(--grey);
+             overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .ghdr i{flex:0 0 auto;font-style:normal;font-size:11px;color:var(--grey);
+          background:var(--card);border:1px solid var(--line);border-radius:20px;padding:1px 8px}
   .filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
   .filters select,.filters input{flex:1 1 44%;min-width:0;padding:9px;border:1px solid var(--line);
         border-radius:8px;background:var(--card);font-size:14px;color:var(--ink)}
@@ -161,7 +169,7 @@
       <option value="no">No</option>
       <option value="non_risponde">Non risponde</option>
     </select>
-    <input id="fText" type="search" placeholder="Cerca nome o zona">
+    <input id="fText" type="search" placeholder="Cerca nome, zona o CAP">
   </div>
   <ul id="list"></ul>
   <div class="empty" id="empty" hidden>Nessun locale con questi filtri.</div>
@@ -358,6 +366,31 @@ function fmt(ts) {
 }
 function uniq(a) { return [...new Set(a.filter(Boolean))].sort(); }
 
+/* --------------------------------------------- giri a piedi, per densita' */
+// raggruppo per area di CAP: W1D/W1F/W1W -> W1 ; SE16 resta SE16
+const GIRI = [
+  ['westend', 'West End',   ['W1','WC1','WC2']],
+  ['east',    'East',       ['E1','E2','EC1','EC2','EC4']],
+  ['north',   'North',      ['N1','NW1']],
+  ['south',   'South',      ['SE1','SE16']],
+  ['sudovest','South-West', ['SW1','SW3','SW7','SW10']]
+];
+const AREA_DI_GIRO = {};
+GIRI.forEach(([k,,aree]) => aree.forEach(a => AREA_DI_GIRO[a] = k));
+
+function areaOf(r) {
+  const pc = (r.c.postcode || '').toUpperCase().trim();
+  const m = pc.match(/^([A-Z]{1,2}[0-9]+)/);
+  return m ? m[1] : (pc || '\u2014');
+}
+function giroOf(r) { return AREA_DI_GIRO[areaOf(r)] || 'sparsi'; }
+
+// i nomi di quartiere dentro un'area, per far capire dove si e'
+function quartieri(rows) {
+  const q = uniq(rows.map(r => r.c.zone || r.v.area));
+  return q.length > 3 ? q.slice(0,3).join(', ') + '\u2026' : q.join(', ');
+}
+
 function buildFilters() {
   const w = $('fWave'), z = $('fZone');
   if (w.options.length) return;
@@ -366,8 +399,24 @@ function buildFilters() {
     const n = ROWS.filter(r => r.c.wave === k).length;
     return `<option value="${k}">${WAVE[k][0]} &mdash; ${WAVE[k][1]} (${n})</option>`;
   }).join('');
-  z.innerHTML = '<option value="">Tutte le zone di Londra</option>' +
-    uniq(ROWS.map(r => r.c.zone || r.v.area)).map(x => `<option>${x}</option>`).join('');
+  // le zone in ordine di densita': prima dove c'e' piu' roba da fare
+  const perGiro = {}, perArea = {};
+  ROWS.forEach(r => {
+    (perGiro[giroOf(r)] = perGiro[giroOf(r)] || []).push(r);
+    (perArea[areaOf(r)] = perArea[areaOf(r)] || []).push(r);
+  });
+  const optGiri = GIRI.filter(([k]) => perGiro[k])
+    .sort((a,b) => perGiro[b[0]].length - perGiro[a[0]].length)
+    .map(([k, nome, aree]) =>
+      `<option value="g:${k}">${nome} &mdash; ${aree.filter(a=>perArea[a]).join(' \u00b7 ')} (${perGiro[k].length})</option>`);
+  if (perGiro.sparsi) optGiri.push(
+    `<option value="g:sparsi">Sparsi &mdash; uno o due per area (${perGiro.sparsi.length})</option>`);
+  const optAree = Object.keys(perArea)
+    .sort((a,b) => perArea[b].length - perArea[a].length || a.localeCompare(b))
+    .map(a => `<option value="a:${a}">${a} &middot; ${quartieri(perArea[a])} (${perArea[a].length})</option>`);
+  z.innerHTML = `<option value="">Tutta Londra (${ROWS.length})</option>` +
+    `<optgroup label="Giri a piedi">${optGiri.join('')}</optgroup>` +
+    `<optgroup label="Area per area">${optAree.join('')}</optgroup>`;
   ['fWave','fZone','fState','fText'].forEach(id => $(id).addEventListener('input', render));
 }
 
@@ -376,9 +425,16 @@ function render() {
   const w = $('fWave').value, z = $('fZone').value, st = $('fState').value,
         q = $('fText').value.trim().toLowerCase();
 
-  const list = ROWS.filter(r => {
+  // base = priorita' + zona. I contatori si riferiscono a questa, non a tutta Londra.
+  const base = ROWS.filter(r => {
     if (w && r.c.wave !== w) return false;
-    if (z && (r.c.zone || r.v.area) !== z) return false;
+    if (!z) return true;
+    if (z.startsWith('g:')) return giroOf(r) === z.slice(2);
+    if (z.startsWith('a:')) return areaOf(r) === z.slice(2);
+    return (r.c.zone || r.v.area) === z;          // vecchi link con la zona per nome
+  });
+
+  const list = base.filter(r => {
     if (st === 'scaduti') { if (!overdue(r)) return false; }
     else if (st && state(r) !== st) return false;
     if (q && !((r.v.name + ' ' + (r.v.area||'') + ' ' + (r.c.zone||'') + ' ' +
@@ -386,13 +442,13 @@ function render() {
     return true;
   });
 
-  const n = s => ROWS.filter(r => state(r) === s).length;
+  const n = s => base.filter(r => state(r) === s).length;
   $('stats').innerHTML = [
     ['Da chiamare',      n('da_chiamare'),            'due', 'da_chiamare'],
-    ['Da richiamare ora', ROWS.filter(overdue).length, 'due', 'scaduti'],
+    ['Da richiamare ora', base.filter(overdue).length, 'due', 'scaduti'],
     ['Hanno detto sì', n('si'),                      'si',  'si'],
     ['Hanno detto no',   n('no'),                      'no',  'no'],
-    ['Tutti',            ROWS.length,                  '',    '']
+    ['Tutti',            base.length,                  '',    '']
   ].map(([l, v, c, k]) =>
     `<button class="stat ${c} ${st === k ? 'on' : ''}" data-st="${k}"><b>${v}</b><span>${l}</span></button>`
   ).join('');
@@ -400,7 +456,16 @@ function render() {
     b.addEventListener('click', () => { $('fState').value = b.dataset.st; render(); }));
 
   $('empty').hidden = list.length > 0;
-  $('list').innerHTML = list.map(card).join('');
+
+  // raggruppo per area, dalla piu' densa alla piu' vuota
+  const gruppi = {};
+  list.forEach(r => (gruppi[areaOf(r)] = gruppi[areaOf(r)] || []).push(r));
+  const ordine = Object.keys(gruppi)
+    .sort((a,b) => gruppi[b].length - gruppi[a].length || a.localeCompare(b));
+  $('list').innerHTML = ordine.map(a =>
+    `<li class="ghdr"><b>${esc(a)}</b><span>${esc(quartieri(gruppi[a]))}</span>` +
+    `<i>${gruppi[a].length}</i></li>` + gruppi[a].map(card).join('')
+  ).join('');
   $('list').querySelectorAll('button[data-id]').forEach(b =>
     b.addEventListener('click', () => openDlg(+b.dataset.id)));
   $('list').querySelectorAll('button[data-del]').forEach(b =>
